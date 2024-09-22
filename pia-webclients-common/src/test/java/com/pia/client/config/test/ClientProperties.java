@@ -1,0 +1,16 @@
+package com.pia.client.config.test;
+
+import com.pia.client.common.model.BaseClientProperties;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
+
+@Configuration
+@ConfigurationProperties(prefix = "client")
+@Getter
+@Setter
+@Validated
+public class ClientProperties extends BaseClientProperties<TokenProperties> {
+}

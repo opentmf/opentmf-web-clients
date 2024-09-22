@@ -1,0 +1,27 @@
+pia.webclient:
+  basic:
+    client1:
+      connection-provider-name: basic-client-1
+      fixed-headers:
+        header1: value1
+      token-config:
+        use-mock: false
+        username: user
+        password: pass
+  openid:
+    client1:
+      connection-provider-name: asas
+      fixed-headers:
+        header1: value1
+      token-config:
+        use-mock: false
+        token-url: http://localhost:1080/token
+        basicAuthUsername: user
+        basicAuthPassword: pass
+        cache-expiry-seconds: 1
+        cache-name: openid-token-cache
+        form-data:
+          username: user
+          password: pass
+          scope: openid
+          grant_type: password
