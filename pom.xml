@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.pia.commons</groupId>
   <artifactId>pia-web-clients</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -299,7 +299,7 @@
     <connection>scm:git:git@github.com:pia-commons/pia-web-clients.git</connection>
     <developerConnection>scm:git:git@github.com:pia-commons/pia-web-clients.git
     </developerConnection>
-    <tag>pia-web-clients-1.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
 </project>
