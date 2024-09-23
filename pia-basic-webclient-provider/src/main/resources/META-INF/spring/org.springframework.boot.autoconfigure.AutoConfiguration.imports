@@ -1,1 +1,1 @@
-com.pia.client.basic.config.BasicWebClientAutoConfiguration
+com.pia.client.basic.config.BasicWebClientProviderAutoConfiguration

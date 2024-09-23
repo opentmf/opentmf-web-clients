@@ -197,7 +197,8 @@ public class SampleClientImpl() {
 }
 ```
 
-
 ## Version History
 ### 1.0.0
 - Initial Version
+### 1.0.1
+- Fixes the BasicWebClientProviderAutoConiguration class name.

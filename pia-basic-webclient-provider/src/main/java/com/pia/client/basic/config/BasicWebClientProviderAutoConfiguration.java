@@ -15,7 +15,7 @@ import org.zalando.logbook.autoconfigure.LogbookAutoConfiguration;
  */
 @AutoConfiguration(after = LogbookAutoConfiguration.class)
 @EnableConfigurationProperties(BasicAuthClients.class)
-public class BasicWebClientAutoConfiguration {
+public class BasicWebClientProviderAutoConfiguration {
 
   @Bean
   public BasicWebClientProvider basicWebClientProvider(WebClient.Builder webClientBuilder,
