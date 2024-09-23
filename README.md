@@ -15,7 +15,7 @@ Currently, two providers have been provided:
     <dependency>
       <groupId>com.pia.commons</groupId>
       <artifactId>pia-openid-webclient-provider</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
     </dependency>
 ```
 
@@ -119,7 +119,7 @@ public class SampleClientImpl() {
     <dependency>
       <groupId>com.pia.commons</groupId>
       <artifactId>pia-basic-webclient-provider</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
     </dependency>
 ```
 
