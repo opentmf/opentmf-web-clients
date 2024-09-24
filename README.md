@@ -23,7 +23,7 @@ Currently, two providers have been provided:
 ```yaml
 pia.webclient:
   openid:
-    client1:
+    default:
       connection-provider-name: client1-provider
       token-config:
         token-url: http://localhost:1080/token
@@ -40,7 +40,7 @@ pia.webclient:
 ```yaml
 pia.webclient:
   openid:
-    client2:
+    default:
       connection-provider-name: client2-provider
       max-connections: 100
       request-timeout-millis: 50_000
@@ -89,13 +89,18 @@ public class OpenidAuthClientsConfig {
   private final OpenidClients openidClients;
 
   @Bean
-  public WebClient openidWebClient() {
-    return openidWebClientProvider.buildWebClient(openidClients.getOpenid().get("client1"));
+  public OpenidClientProperties defaultClientProperties() {
+    return openidClients.getOpenid().get("default");
   }
 
   @Bean
-  public OpenidTokenService openidTokenService() {
-    return openidWebClientProvider.buildTokenService(openidClients.getOpenid().get("client1"));
+  public WebClient defaultWebClient(OpenidClientProperties properties) {
+    return openidWebClientProvider.buildWebClient(properties);
+  }
+
+  @Bean
+  public OpenidTokenService defaultTokenService(OpenidClientProperties properties) {
+    return openidWebClientProvider.buildTokenService(properties);
   }
 }
 ``` 
@@ -172,13 +177,18 @@ public class BasicAuthClientsConfig {
   private final BasicAuthClients basicAuthClients;
 
   @Bean
-  public WebClient basicWebClient() {
-    return basicWebClientProvider.buildWebClient(basicAuthClients.getBasic().get("client1"));
+  public BasicClientProperties basicClientProperties() {
+    return basicAuthClients.getOpenid().get("client1");
+  }
+  
+  @Bean
+  public WebClient basicWebClient(BasicClientProperties basicClientProperties) {
+    return basicWebClientProvider.buildWebClient(basicClientProperties);
   }
 
   @Bean
-  public BasicTokenService basicTokenService() {
-    return basicWebClientProvider.buildTokenService(basicAuthClients.getBasic().get("client1"));
+  public BasicTokenService basicTokenService(BasicClientProperties basicClientProperties) {
+    return basicWebClientProvider.buildTokenService(basicClientProperties);
   }
 }
 
