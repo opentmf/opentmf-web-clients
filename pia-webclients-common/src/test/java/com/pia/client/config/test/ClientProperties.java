@@ -12,5 +12,10 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @Validated
-public class ClientProperties extends BaseClientProperties<TokenProperties> {
+public class ClientProperties extends BaseClientProperties {
+
+  /**
+   * Token properties of this client properties.
+   */
+  private TokenProperties tokenConfig;
 }

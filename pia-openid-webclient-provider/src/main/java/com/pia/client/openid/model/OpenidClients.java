@@ -18,8 +18,8 @@ import org.springframework.validation.annotation.Validated;
 public class OpenidClients {
 
   /**
-   * User defined arbitrary number of basicAuth client configurations.
+   * User defined arbitrary number of OpenID client configurations.
    */
   @NotEmpty
-  private Map<String, @Valid OpenidClientProperties> openid;
+  private Map<@NotEmpty String, @Valid OpenidClientProperties> openid;
 }

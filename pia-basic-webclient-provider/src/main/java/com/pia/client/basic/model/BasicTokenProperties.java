@@ -1,6 +1,5 @@
 package com.pia.client.basic.model;
 
-import com.pia.client.common.model.BaseTokenProperties;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +17,7 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BasicTokenProperties extends BaseTokenProperties {
+public class BasicTokenProperties {
 
   /**
    * The mandatory basic auth username.

@@ -1,7 +1,7 @@
 package com.pia.client.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.pia.client.config.test.ClientProperties;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,8 @@ class BaseClientPropertiesIT {
 
   @Test
   void testBaseClientProperties_withExtensionProperties_loadsFromPropertiesFile() {
-    assertFalse(clientProperties.getTokenConfig().isUseMock());
+    assertNotNull(clientProperties);
+    assertNotNull(clientProperties.getTokenConfig());
     assertEquals(500, clientProperties.getMaxConnections());
   }
 }

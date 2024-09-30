@@ -4,7 +4,6 @@ import static com.pia.client.common.util.WebClientConfigUtil.createWebClient;
 import static com.pia.client.common.util.WebClientConfigUtil.httpClient;
 
 import com.pia.client.basic.model.BasicClientProperties;
-import com.pia.client.basic.model.BasicTokenProperties;
 import com.pia.client.basic.service.api.BasicTokenService;
 import com.pia.client.basic.service.api.BasicWebClientProvider;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +38,7 @@ public class BasicWebClientProviderImpl implements BasicWebClientProvider {
   @Override
   public BasicTokenService buildTokenService(BasicClientProperties properties) {
     if (tokenService == null) {
-      var tokenConfig = properties.getTokenConfig().isUseMock()
-          ? new BasicTokenProperties("user", "pass", "UTF-8")
-          : properties.getTokenConfig();
-      tokenService = new BasicTokenServiceImpl(tokenConfig);
+      tokenService = new BasicTokenServiceImpl(properties.getTokenConfig());
     }
     return tokenService;
   }

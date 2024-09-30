@@ -56,7 +56,6 @@ class WebClientUtilTests {
     Assertions.assertTrue(WebClientUtil.isRetryableStatus(httpStatus));
   }
 
-  @SuppressWarnings("ConstantConditions")
   @Test
   void testRetryableCodes_NullValue() {
     Assertions.assertFalse(WebClientUtil.isRetryableStatus(null));

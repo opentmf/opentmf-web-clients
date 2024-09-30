@@ -22,4 +22,12 @@ public interface TokenService {
    */
   Mono<String> getToken();
 
+  /**
+   * Returns a token from the configured client baseUrl for the requested additionalScopes.
+   *
+   * @param additionalScopes The requested additionalScopes delimited by space if more than one
+   *                         additional scope is requested. Null will be mapped to empty string.
+   * @return a token from the configured client baseUrl for the requested additionalScopes.
+   */
+  Mono<String> getToken(String additionalScopes);
 }

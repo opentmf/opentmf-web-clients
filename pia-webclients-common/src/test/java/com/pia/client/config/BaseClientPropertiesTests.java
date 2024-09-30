@@ -42,8 +42,6 @@ class BaseClientPropertiesTests {
   }
 
   private TokenProperties buildTokenProperties() {
-    var token = new TokenProperties();
-    token.setUseMock(false);
-    return token;
+    return new TokenProperties();
   }
 }

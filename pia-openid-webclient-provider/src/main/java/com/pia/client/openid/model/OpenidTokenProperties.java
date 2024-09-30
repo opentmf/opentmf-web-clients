@@ -1,6 +1,5 @@
 package com.pia.client.openid.model;
 
-import com.pia.client.common.model.BaseTokenProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +17,12 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Getter
 @Setter
-public class OpenidTokenProperties extends BaseTokenProperties {
+public class OpenidTokenProperties {
+
+  /**
+   * When true, returns a dummy token.
+   */
+  private boolean useMock = false;
 
   /**
    * The URL to use to obtain a token

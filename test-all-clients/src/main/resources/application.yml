@@ -5,7 +5,6 @@ pia.webclient:
       fixed-headers:
         header1: value1
       token-config:
-        use-mock: false
         username: user
         password: pass
   openid:

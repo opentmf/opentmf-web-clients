@@ -11,15 +11,6 @@ import reactor.core.publisher.Mono;
 public interface OpenidTokenService extends TokenService {
 
   /**
-   * Returns a token from the configured client baseUrl for the requested additionalScopes.
-   *
-   * @param additionalScopes The requested additionalScopes delimited by space if more than one
-   *                         additional scope is requested. Null will be mapped to empty string.
-   * @return a token from the configured client baseUrl for the requested additionalScopes.
-   */
-  Mono<String> getToken(String additionalScopes);
-
-  /**
    * Returns a token to be retrieved from the requested baseUrl for the requested additionalScopes.
    * <p>
    * This method is useful in situations where we want to get a token from a different

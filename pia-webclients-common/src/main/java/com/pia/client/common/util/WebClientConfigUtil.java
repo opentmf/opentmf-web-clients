@@ -1,7 +1,6 @@
 package com.pia.client.common.util;
 
 import com.pia.client.common.model.BaseClientProperties;
-import com.pia.client.common.model.BaseTokenProperties;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslContext;
@@ -46,7 +45,7 @@ public final class WebClientConfigUtil {
 
   public static HttpClient httpClient(
       Logbook logbook,
-      BaseClientProperties<? extends BaseTokenProperties> clientProperties) throws SSLException {
+      BaseClientProperties clientProperties) throws SSLException {
     var httpClient = httpClient(logbook, buildSslContext(), clientProperties);
     if (Objects.nonNull(clientProperties.getProxyConfig())) {
       httpClient.proxy(typeSpec -> WebClientConfigUtil.proxy(typeSpec, clientProperties));
@@ -57,7 +56,7 @@ public final class WebClientConfigUtil {
   public static HttpClient httpClient(
       Logbook logbook,
       SslContext sslContext,
-      BaseClientProperties<? extends BaseTokenProperties> clientProperties) {
+      BaseClientProperties clientProperties) {
     var connectionProvider = buildConnectionProvider(clientProperties);
     return HttpClient.create(connectionProvider)
         .wiretap(HttpClient.class.getName(), LogLevel.INFO, AdvancedByteBufFormat.SIMPLE)
@@ -73,7 +72,7 @@ public final class WebClientConfigUtil {
   }
 
   public static WebClient createWebClient(WebClient.Builder webClientBuilder, HttpClient httpClient,
-      BaseClientProperties<? extends BaseTokenProperties> clientProperties) {
+      BaseClientProperties clientProperties) {
     return webClientBuilder.defaultHeaders(httpHeaders -> {
           httpHeaders.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
           if (!CollectionUtils.isEmpty(clientProperties.getFixedHeaders())) {
@@ -98,7 +97,7 @@ public final class WebClientConfigUtil {
   }
 
   private static ConnectionProvider buildConnectionProvider(
-      BaseClientProperties<? extends BaseTokenProperties> clientProperties) {
+      BaseClientProperties clientProperties) {
     return ConnectionProvider.builder(clientProperties.getConnectionProviderName())
         .maxIdleTime(Duration.ofMinutes(MAX_IDLE_TIME_MINUTES))
         .maxConnections(clientProperties.getMaxConnections())
@@ -107,7 +106,7 @@ public final class WebClientConfigUtil {
   }
 
   private static void doOnConnected(Connection conn, Logbook logbook,
-      BaseClientProperties<? extends BaseTokenProperties> clientProperties) {
+      BaseClientProperties clientProperties) {
     var requestTimeoutMillis = clientProperties.getRequestTimeoutMillis();
     var responseTimeoutMillis = clientProperties.getResponseTimeoutMillis();
     conn.addHandlerLast(new ReadTimeoutHandler(responseTimeoutMillis, TimeUnit.MILLISECONDS))
@@ -116,7 +115,7 @@ public final class WebClientConfigUtil {
   }
 
   public static void proxy(ProxyProvider.TypeSpec typeSpec,
-      BaseClientProperties<? extends BaseTokenProperties> clientProperties) {
+      BaseClientProperties clientProperties) {
     var proxyConfig = Objects.requireNonNull(clientProperties.getProxyConfig(), "ProxyConfig cannot be null");
     typeSpec.type(ProxyProvider.Proxy.HTTP)
         .address(InetSocketAddress.createUnresolved(proxyConfig.getProxyHost(), proxyConfig.getProxyPort()))
@@ -124,7 +123,7 @@ public final class WebClientConfigUtil {
         .nonProxyHosts(nonProxyHostsPattern(clientProperties));
   }
 
-  private static String nonProxyHostsPattern(BaseClientProperties<? extends BaseTokenProperties> clientProperties) {
+  private static String nonProxyHostsPattern(BaseClientProperties clientProperties) {
     var proxyConfig = Objects.requireNonNull(clientProperties.getProxyConfig(), "ProxyConfig cannot be null");
     if (CollectionUtils.isEmpty(proxyConfig.getNonProxyHosts())) {
       return "";

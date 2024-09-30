@@ -16,7 +16,7 @@ import reactor.netty.resources.ConnectionProvider;
 @Validated
 @Getter
 @Setter
-public abstract class BaseClientProperties<T extends BaseTokenProperties> {
+public abstract class BaseClientProperties {
 
   /**
    * User defined name of the connection provider.
@@ -90,9 +90,4 @@ public abstract class BaseClientProperties<T extends BaseTokenProperties> {
      */
     private List<String> nonProxyHosts;
   }
-
-  /**
-   * This is the token property holder.
-   */
-  private T tokenConfig;
 }

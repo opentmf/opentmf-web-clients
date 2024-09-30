@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @Validated
-public class OpenidClientProperties extends BaseClientProperties<OpenidTokenProperties> {
+public class OpenidClientProperties extends BaseClientProperties {
 
   /**
    * A map of arbitrary names for path and scope.
@@ -39,4 +39,9 @@ public class OpenidClientProperties extends BaseClientProperties<OpenidTokenProp
      */
     private String scope;
   }
+
+  /**
+   * OpenID Auth Token Properties.
+   */
+  private OpenidTokenProperties tokenConfig;
 }

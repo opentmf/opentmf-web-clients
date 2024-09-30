@@ -35,6 +35,11 @@ public class BasicTokenServiceImpl implements BasicTokenService {
     return Mono.just(token);
   }
 
+  @Override
+  public Mono<String> getToken(String additionalScopes) {
+    return getToken();
+  }
+
   private static Charset findCharset(String charset) {
     try {
       return Charset.forName(charset);

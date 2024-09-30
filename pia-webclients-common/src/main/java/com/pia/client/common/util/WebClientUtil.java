@@ -131,7 +131,7 @@ public final class WebClientUtil {
 
   /**
    * Will generate a RetryBackoffSpec with a jitter factor of zero (i.e. without a jitter factor).
-   * For exhausted retries, this method will not return a RetryExhaustedException and instead it
+   * For exhausted retries, this method will not return a RetryExhaustedException, and instead it
    * will return the latest error received from the latest retry.
    *
    * @param maxAttempts Max attempts.

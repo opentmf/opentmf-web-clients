@@ -1,7 +1,6 @@
 package com.pia.client.config.test;
 
 
-import com.pia.client.common.model.BaseTokenProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +13,7 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @Validated
-public class TokenProperties extends BaseTokenProperties {
+public class TokenProperties {
 
   /**
    * The URL to use to obtain a token

@@ -77,6 +77,11 @@ public class OpenIdClientAutoConfiguration {
       public Mono<String> getToken() {
         return Mono.just("token");
       }
+
+      @Override
+      public Mono<String> getToken(String additionalScopes) {
+        return Mono.just("token");
+      }
     };
   }
 
