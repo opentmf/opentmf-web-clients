@@ -94,13 +94,15 @@ public class OpenidAuthClientsConfig {
   }
 
   @Bean
-  public WebClient defaultWebClient(OpenidClientProperties properties) {
-    return openidWebClientProvider.buildWebClient(properties);
+  public WebClient defaultWebClient(
+      @Qualifier("defaultClientProperties") OpenidClientProperties defaultClientProperties) {
+    return openidWebClientProvider.buildWebClient(defaultClientProperties);
   }
 
   @Bean
-  public OpenidTokenService defaultTokenService(OpenidClientProperties properties) {
-    return openidWebClientProvider.buildTokenService(properties);
+  public OpenidTokenService defaultTokenService(
+      @Qualifier("defaultClientProperties") OpenidClientProperties defaultClientProperties) {
+    return openidWebClientProvider.buildTokenService(defaultClientProperties);
   }
 }
 ``` 
@@ -112,8 +114,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SampleClientImpl() {
 
-  private final WebClient openidWebClient;
-  private final OpenidTokenService openidTokenService;
+  private final WebClient defaultWebClient;
+  private final OpenidTokenService defaultTokenService;
+  private final OpenidClientProperties defaultClientProperties;
   ...
 }
 ```
@@ -160,7 +163,6 @@ pia.webclient:
           - mockserver
           - camunda7
       token-config:
-        use-mock: false
         username: user
         password: pass
         charset: UTF-8
@@ -182,12 +184,14 @@ public class BasicAuthClientsConfig {
   }
   
   @Bean
-  public WebClient basicWebClient(BasicClientProperties basicClientProperties) {
+  public WebClient basicWebClient(
+      @Qualifier("basicClientProperties") BasicClientProperties basicClientProperties) {
     return basicWebClientProvider.buildWebClient(basicClientProperties);
   }
 
   @Bean
-  public BasicTokenService basicTokenService(BasicClientProperties basicClientProperties) {
+  public BasicTokenService basicTokenService(
+      @Qualifier("basicClientProperties") BasicClientProperties basicClientProperties) {
     return basicWebClientProvider.buildTokenService(basicClientProperties);
   }
 }
@@ -203,6 +207,7 @@ public class SampleClientImpl() {
 
   private final WebClient basicWebClient;
   private final BasicTokenService basicTokenService;
+  private final BasicClientProperties basicClientProperties;
   ...
 }
 ```
