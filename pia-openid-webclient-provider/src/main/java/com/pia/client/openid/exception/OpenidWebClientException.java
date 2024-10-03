@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatusCode;
 public class OpenidWebClientException extends PiaWebClientException {
 
   @Serial
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 3L;
 
   public OpenidWebClientException(HttpStatusCode httpStatus) {
     super(httpStatus);

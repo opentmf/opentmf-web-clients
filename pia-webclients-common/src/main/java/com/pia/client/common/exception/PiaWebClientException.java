@@ -1,6 +1,7 @@
 package com.pia.client.common.exception;
 
 import java.io.Serial;
+import java.io.Serializable;
 import lombok.Getter;
 import org.springframework.http.HttpStatusCode;
 
@@ -11,28 +12,28 @@ import org.springframework.http.HttpStatusCode;
  * @author Gokhan Demir
  */
 @Getter
-public class PiaWebClientException extends RuntimeException {
+public class PiaWebClientException extends RuntimeException implements Serializable {
+
   @Serial
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 3L;
 
   private final HttpStatusCode statusCode;
 
-  public PiaWebClientException(HttpStatusCode httpStatus) {
-    this.statusCode = httpStatus;
+  public PiaWebClientException(HttpStatusCode statusCode) {
+    this.statusCode = statusCode;
   }
 
-  public PiaWebClientException(HttpStatusCode httpStatusCode, String message) {
+  public PiaWebClientException(HttpStatusCode statusCode, String message) {
     super(message);
-    this.statusCode = httpStatusCode;
+    this.statusCode = statusCode;
   }
 
-  public PiaWebClientException(HttpStatusCode httpStatusCode, String message, Throwable cause) {
+  public PiaWebClientException(HttpStatusCode statusCode, String message, Throwable cause) {
     super(message, cause);
-    this.statusCode = httpStatusCode;
+    this.statusCode = statusCode;
   }
 
   public final int getRawStatusCode() {
     return statusCode.value();
   }
-
 }
