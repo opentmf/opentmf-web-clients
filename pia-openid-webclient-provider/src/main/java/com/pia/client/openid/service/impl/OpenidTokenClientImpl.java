@@ -1,7 +1,6 @@
 package com.pia.client.openid.service.impl;
 
 import static com.pia.client.openid.util.OpenidTokenUtil.SCOPE;
-import static com.pia.client.openid.util.OpenidTokenUtil.USERNAME;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -34,7 +33,7 @@ public class OpenidTokenClientImpl implements OpenidTokenClient {
   @Override
   public Mono<ObjectNode> retrieveToken(URI tokenUrl, MultiValueMap<String, String> formData) {
     log.debug("Will retrieve a new openid token from url: {}, scope: {}, username: {}",
-        tokenUrl, formData.get(SCOPE), formData.get(USERNAME));
+        tokenUrl, formData.get(SCOPE), formData.get(properties.getTokenConfig().getUsernameField()));
     return post(tokenUrl, BodyInserters.fromFormData(formData));
   }
 
@@ -49,10 +48,9 @@ public class OpenidTokenClientImpl implements OpenidTokenClient {
         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
         .accept(MediaType.APPLICATION_JSON)
         .body(tokenRequestForm)
-        .headers(headers -> headers.setBasicAuth(basicAuthUsername, basicAuthPassword))
-        .headers(h -> {
+        .headers(headers -> {
           if (hasText(basicAuthUsername) && hasText(basicAuthPassword)) {
-            h.setBasicAuth(basicAuthUsername, basicAuthPassword);
+            headers.setBasicAuth(basicAuthUsername, basicAuthPassword);
           }
         })
         .retrieve()

@@ -219,3 +219,7 @@ public class SampleClientImpl() {
 - Fixes the BasicWebClientProviderAutoConiguration class name.
 ### 1.0.2
 - moves getToken(scope) method to generic layer
+### 1.0.3
+- Marks PiaWebClientException Serializable
+### 1.0.4
+- Added new configuration property "usernameField" to openidTokenProperties.
