@@ -8,15 +8,29 @@ Currently, two providers have been provided:
 
 ## Usage
 
+### Import pia-commons dependency versions
+This will manage the dependencies of the pia-commons libraries
+to use their latest compatible version.
+```xml
+<dependencyManagement>
+  <dependency>
+    <groupId>com.pia.commons</groupId>
+    <artifactId>pia-commons-versions</artifactId>
+    <version>RELEASE</version>
+    <type>pom</type>
+    <scope>import</scope>
+  </dependency>
+</dependencyManagement>
+```
+
 ### A) Openid Auth WebClient
 
 #### Maven Dependency
 ```xml
-    <dependency>
-      <groupId>com.pia.commons</groupId>
-      <artifactId>pia-openid-webclient-provider</artifactId>
-      <version>1.0.2</version>
-    </dependency>
+<dependency>
+  <groupId>com.pia.commons</groupId>
+  <artifactId>pia-openid-webclient-provider</artifactId>
+</dependency>
 ```
 
 #### Sample Configuration (Minimal)
@@ -70,6 +84,7 @@ pia.webclient:
         cache-name: client2-token-cache
         cache-expiry-seconds: 3600
         token-field: access_token
+        username-field: username
         form-data:
           username: user
           password: pass
@@ -124,11 +139,10 @@ public class SampleClientImpl() {
 
 #### Maven Dependency
 ```xml
-    <dependency>
-      <groupId>com.pia.commons</groupId>
-      <artifactId>pia-basic-webclient-provider</artifactId>
-      <version>1.0.2</version>
-    </dependency>
+<dependency>
+  <groupId>com.pia.commons</groupId>
+  <artifactId>pia-basic-webclient-provider</artifactId>
+</dependency>
 ```
 
 #### Sample Configuration (Minimal)
