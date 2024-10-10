@@ -61,6 +61,13 @@ public class OpenidTokenProperties {
   private String tokenField = "access_token";
 
   /**
+   * This is the field name in form-data that specifies the username. This field's value will be
+   * used when caching the access token. Defaults to "username" if not specified.
+   */
+  @NotEmpty
+  private String usernameField = "username";
+
+  /**
    * Necessary form data to obtain a token
    */
   @NotEmpty

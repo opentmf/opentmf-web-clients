@@ -19,6 +19,7 @@ pia.webclient:
         basicAuthPassword: pass
         cache-expiry-seconds: 1
         cache-name: openid-token-cache
+        username-field: username
         form-data:
           username: user
           password: pass

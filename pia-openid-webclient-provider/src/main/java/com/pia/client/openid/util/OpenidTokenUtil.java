@@ -1,5 +1,8 @@
 package com.pia.client.openid.util;
 
+import static com.pia.client.common.util.TokenUtil.firstNonNull;
+
+import com.pia.client.openid.model.OpenidTokenProperties;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -14,7 +17,6 @@ import org.springframework.util.StringUtils;
 @UtilityClass
 public class OpenidTokenUtil {
 
-  public static final String USERNAME = "username";
   public static final String SCOPE = "scope";
 
   public static String findScope(String additionalScopes, String configuredScopes,
@@ -37,8 +39,11 @@ public class OpenidTokenUtil {
         .stream().map(String::toString).collect(Collectors.joining(" "));
   }
 
-  public static String findUsername(Map<String, String> formData, Map<String, String> enricher) {
-    return Optional.ofNullable(enricher.get(USERNAME))
-        .orElse(formData.get(USERNAME));
+  public static String findUsername(OpenidTokenProperties properties, Map<String, String> enricher) {
+    var formData = properties.getFormData();
+    return firstNonNull(
+        enricher.get(properties.getUsernameField()),
+        formData.get(properties.getUsernameField())
+    );
   }
 }

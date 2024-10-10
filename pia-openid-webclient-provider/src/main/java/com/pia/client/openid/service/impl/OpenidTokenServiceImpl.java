@@ -3,10 +3,10 @@ package com.pia.client.openid.service.impl;
 import static com.pia.client.common.util.TokenUtil.TOKEN_TYPE_BEARER;
 import static com.pia.client.common.util.TokenUtil.cacheKey;
 import static com.pia.client.openid.util.OpenidTokenUtil.SCOPE;
-import static com.pia.client.openid.util.OpenidTokenUtil.USERNAME;
 import static com.pia.client.openid.util.OpenidTokenUtil.findScope;
 import static com.pia.client.openid.util.OpenidTokenUtil.findUsername;
 import static java.util.Collections.emptyMap;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.pia.client.openid.model.OpenidTokenProperties;
@@ -65,7 +65,7 @@ public class OpenidTokenServiceImpl implements OpenidTokenService {
 
   private Mono<String> getToken(URI uri, String additionalScopes, Map<String, String> enricher) {
     var scope = findScope(additionalScopes, properties.getFormData().get(SCOPE), enricher);
-    var username = findUsername(properties.getFormData(), enricher);
+    var username = findUsername(properties, enricher);
     var key = cacheKey(uri, scope, username);
     var tokenObject = tokenCache.get(key);
     if (tokenObject != null) {
@@ -73,8 +73,8 @@ public class OpenidTokenServiceImpl implements OpenidTokenService {
           uri, scope, username);
       return Mono.just(extractToken(tokenObject));
     }
-    var map = enrich(username, scope, enricher);
-    return openidTokenClient.retrieveToken(uri, map)
+    var multiValueMap = enrich(username, scope, enricher);
+    return openidTokenClient.retrieveToken(uri, multiValueMap)
         .doOnNext(jsonObjectNode -> tokenCache.put(key, jsonObjectNode))
         .map(this::extractToken);
   }
@@ -85,13 +85,12 @@ public class OpenidTokenServiceImpl implements OpenidTokenService {
 
   private MultiValueMap<String, String> enrich(String username, String scope,
       Map<String, String> enricher) {
-    var map = new HashMap<String, String>();
-    properties.getFormData().keySet().forEach(key -> map.put(key, enricher.get(key)));
-    enricher.keySet().forEach(key -> map.put(key, enricher.get(key)));
-    if (username != null) {
-      map.put(USERNAME, username);
+    var map = new HashMap<>(properties.getFormData());
+    map.putAll(enricher);
+    if (hasText(username)) {
+      map.put(properties.getUsernameField(), username);
     }
-    if (scope != null) {
+    if (hasText(scope)) {
       map.put(SCOPE, scope);
     }
     return toMultiValueMap(map);
