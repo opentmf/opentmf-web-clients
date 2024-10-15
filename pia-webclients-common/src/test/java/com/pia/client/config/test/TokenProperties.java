@@ -34,12 +34,6 @@ public class TokenProperties {
   private String basicAuthPassword;
 
   /**
-   * The name of the access token cache. Must be unique within an application scope.
-   */
-  @NotEmpty
-  private String cacheName;
-
-  /**
    * The expiry duration of the records in the accessToken cache.
    */
   @NotNull

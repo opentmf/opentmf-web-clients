@@ -8,7 +8,6 @@ client:
   retry-wait-millis: 100
   token-config:
     token-url: http://localhost:1080/auth/token
-    cache-name: junit2-cache
     form-data:
       grant-type: client_credentials
       scope: myScope

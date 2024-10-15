@@ -19,13 +19,17 @@ import reactor.netty.resources.ConnectionProvider;
 public abstract class BaseClientProperties {
 
   /**
-   * User defined name of the connection provider.
+   * User defined <strong>unique</strong> name of the connection provider.
+   * <p><strong>Heads Up:</strong> This value must be <span style="color:red; font-weight:bold">unique</span>
+   * for each configured WebClient independent of the provider.
+   * Providing unique names is the responsibility of the programmer and/or deployer (DevOps engineer).
    */
   @NotBlank
   private String connectionProviderName;
 
   /**
-   * Maximum parallel connections
+   * Maximum parallel connections.
+   * @see ConnectionProvider#DEFAULT_POOL_MAX_CONNECTIONS
    */
   @Positive
   private int maxConnections = ConnectionProvider.DEFAULT_POOL_MAX_CONNECTIONS;

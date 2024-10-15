@@ -3,6 +3,7 @@ package com.pia.client.openid.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.net.URI;
 import java.util.Map;
 import lombok.Getter;
@@ -43,15 +44,10 @@ public class OpenidTokenProperties {
   private String basicAuthPassword;
 
   /**
-   * The name of the access token cache. Must be unique within an application scope.
-   */
-  @NotEmpty
-  private String cacheName;
-
-  /**
    * The expiry duration of the records in the accessToken cache.
    */
   @NotNull
+  @Positive
   private long cacheExpirySeconds;
 
   /**
