@@ -9,7 +9,9 @@
   <modules>
     <module>pia-webclients-common</module>
     <module>pia-basic-webclient-provider</module>
+    <module>pia-basic-webclients-starter</module>
     <module>pia-openid-webclient-provider</module>
+    <module>pia-openid-webclients-starter</module>
     <module>test-all-clients</module>
   </modules>
 
