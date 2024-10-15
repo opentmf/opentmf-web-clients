@@ -5,8 +5,8 @@ import static com.pia.client.common.util.WebClientConfigUtil.createWebClient;
 import static com.pia.client.common.util.WebClientConfigUtil.httpClient;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.pia.client.common.service.impl.WebClientProviderBaseImpl;
 import com.pia.client.openid.model.OpenidClientProperties;
-import com.pia.client.openid.model.OpenidTokenProperties;
 import com.pia.client.openid.service.api.OpenidTokenService;
 import com.pia.client.openid.service.api.OpenidTokenServiceMockImpl;
 import com.pia.client.openid.service.api.OpenidWebClientProvider;
@@ -24,56 +24,46 @@ import org.zalando.logbook.Logbook;
  * @author Gokhan Demir
  */
 @RequiredArgsConstructor
-public class OpenidWebClientProviderImpl implements OpenidWebClientProvider {
+public class OpenidWebClientProviderImpl
+    extends WebClientProviderBaseImpl<OpenidClientProperties, OpenidTokenService>
+    implements OpenidWebClientProvider {
 
   private final WebClient.Builder webClientBuilder;
   private final Logbook logbook;
 
-  private WebClient webClient = null;
-  private Cache<String, ObjectNode> accessTokenCache = null;
-  private OpenidTokenService tokenService = null;
-
   @Override
-  public WebClient buildWebClient(OpenidClientProperties properties) {
-    if (webClient == null) {
-      try {
-        var httpClient = httpClient(logbook, properties);
-        webClient = createWebClient(webClientBuilder, httpClient, properties);
-      } catch (Exception e) {
-        throw new IllegalArgumentException("Can't create webClient using the properties", e);
-      }
+  protected WebClient buildWebClientFromScratch(OpenidClientProperties properties) {
+    try {
+      var httpClient = httpClient(logbook, properties);
+      return createWebClient(webClientBuilder, httpClient, properties);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Can't create webClient using the properties", e);
     }
-    return webClient;
   }
 
   @Override
-  public OpenidTokenService buildTokenService(OpenidClientProperties properties) {
-    if (tokenService == null) {
-      if (properties.getTokenConfig().isUseMock()) {
-        tokenService = new OpenidTokenServiceMockImpl();
-      } else {
-        var client = new OpenidTokenClientImpl(properties, buildWebClient(properties));
-        tokenService = new OpenidTokenServiceImpl(properties.getTokenConfig(),
-            getCache(properties.getTokenConfig()), client);
-      }
+  protected OpenidTokenService buildTokenServiceFromScratch(OpenidClientProperties properties) {
+    if (properties.getTokenConfig().isUseMock()) {
+      return new OpenidTokenServiceMockImpl();
+    } else {
+      var tokenClient = new OpenidTokenClientImpl(properties, buildWebClient(properties));
+      return new OpenidTokenServiceImpl(properties.getTokenConfig(),
+          createAccessTokenCache(properties), tokenClient);
     }
-    return tokenService;
   }
 
-  private Cache<String, ObjectNode> getCache(OpenidTokenProperties properties) {
-    if (accessTokenCache == null) {
+  private Cache<String, ObjectNode> createAccessTokenCache(OpenidClientProperties properties) {
+    var expiryDuration = new Duration(TimeUnit.SECONDS,
+        properties.getTokenConfig().getCacheExpirySeconds());
 
-      var expiryDuration = new Duration(TimeUnit.SECONDS, properties.getCacheExpirySeconds());
-      var config = new MutableConfiguration<String, ObjectNode>()
-          .setTypes(String.class, ObjectNode.class)
-          .setExpiryPolicyFactory(() -> new CreatedExpiryPolicy(expiryDuration))
-          .setStoreByValue(true);
+    var config = new MutableConfiguration<String, ObjectNode>()
+        .setTypes(String.class, ObjectNode.class)
+        .setExpiryPolicyFactory(() -> new CreatedExpiryPolicy(expiryDuration))
+        .setStoreByValue(true);
 
-      var cachingProvider = Caching.getCachingProvider(CACHING_PROVIDER);
+    var cachingProvider = Caching.getCachingProvider(CACHING_PROVIDER);
 
-      accessTokenCache = cachingProvider.getCacheManager()
-          .createCache(properties.getCacheName(), config);
-    }
-    return accessTokenCache;
+    return cachingProvider.getCacheManager()
+        .createCache(properties.getConnectionProviderName(), config);
   }
 }

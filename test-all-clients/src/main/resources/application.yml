@@ -1,15 +1,23 @@
 pia.webclient:
   basic:
-    client1:
-      connection-provider-name: basic-client-1
+    firstBasic:
+      connection-provider-name: firstBasic
       fixed-headers:
         header1: value1
       token-config:
-        username: user
-        password: pass
+        username: user1
+        password: pass1
+    secondBasic:
+      connection-provider-name: secondBasic
+      fixed-headers:
+        header1: value1
+        header2: value2
+      token-config:
+        username: user2
+        password: pass2
   openid:
-    client1:
-      connection-provider-name: asas
+    firstOpenId:
+      connection-provider-name: firstOpenId
       fixed-headers:
         header1: value1
       token-config:
@@ -18,7 +26,23 @@ pia.webclient:
         basicAuthUsername: user
         basicAuthPassword: pass
         cache-expiry-seconds: 1
-        cache-name: openid-token-cache
+        username-field: username
+        form-data:
+          username: user
+          password: pass
+          scope: openid
+          grant_type: password
+    secondOpenId:
+      connection-provider-name: secondOpenId
+      fixed-headers:
+        header1: value1
+        header2: value2
+      token-config:
+        use-mock: false
+        token-url: http://localhost:1080/token
+        basicAuthUsername: user
+        basicAuthPassword: pass
+        cache-expiry-seconds: 1
         username-field: username
         form-data:
           username: user

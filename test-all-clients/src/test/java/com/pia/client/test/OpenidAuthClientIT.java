@@ -7,6 +7,7 @@ import com.pia.client.common.exception.PiaWebClientException;
 import com.pia.client.openid.model.OpenidClientProperties;
 import com.pia.client.openid.model.OpenidClients;
 import com.pia.client.openid.service.api.OpenidTokenService;
+import com.pia.client.openid.service.api.OpenidWebClientProvider;
 import com.pia.client.test.util.MockServerUtils;
 import java.net.URI;
 import java.time.Duration;
@@ -30,14 +31,17 @@ import reactor.test.StepVerifier;
 @Slf4j
 class OpenidAuthClientIT {
 
-  @Autowired
-  private WebClient openidWebClient;
+  @Autowired private OpenidClients openidClients;
+  @Autowired private OpenidWebClientProvider openidWebClientProvider;
 
-  @Autowired
-  private OpenidTokenService openidTokenService;
+  @Autowired private OpenidClientProperties firstOpenIdClientProperties;
+  @Autowired private WebClient firstOpenIdWebClient;
+  @Autowired private OpenidTokenService firstOpenIdTokenService;
 
-  @Autowired
-  private OpenidClients openidClients;
+  @Autowired private OpenidClientProperties secondOpenIdClientProperties;
+  @Autowired private WebClient secondOpenIdWebClient;
+  @Autowired private OpenidTokenService secondOpenIdTokenService;
+
 
   @AfterEach
   void afterEach() {
@@ -47,18 +51,32 @@ class OpenidAuthClientIT {
   @Test
   void testOpenidAuth_withCorrectConfiguration_exposesBeans() {
     Assertions.assertNotNull(openidClients);
-    Assertions.assertNotNull(openidWebClient);
-    Assertions.assertNotNull(openidTokenService);
+
+    Assertions.assertNotNull(firstOpenIdClientProperties);
+    Assertions.assertNotNull(firstOpenIdWebClient);
+    Assertions.assertNotNull(firstOpenIdTokenService);
+
+    Assertions.assertNotNull(secondOpenIdClientProperties);
+    Assertions.assertNotNull(secondOpenIdWebClient);
+    Assertions.assertNotNull(secondOpenIdTokenService);
+
+    Assertions.assertNotEquals(firstOpenIdClientProperties, secondOpenIdClientProperties);
+    Assertions.assertNotEquals(firstOpenIdWebClient, secondOpenIdWebClient);
+    Assertions.assertNotEquals(firstOpenIdTokenService, secondOpenIdTokenService);
+
+    Assertions.assertEquals(firstOpenIdWebClient, openidWebClientProvider.buildWebClient(firstOpenIdClientProperties));
+    Assertions.assertEquals(firstOpenIdTokenService, openidWebClientProvider.buildTokenService(firstOpenIdClientProperties));
+
+    Assertions.assertEquals(secondOpenIdWebClient, openidWebClientProvider.buildWebClient(secondOpenIdClientProperties));
+    Assertions.assertEquals(secondOpenIdTokenService, openidWebClientProvider.buildTokenService(secondOpenIdClientProperties));
   }
 
   @Test
   void testOpenidAuthTokenCache_withCorrectConfiguration_expiresWithinConfiguredDuretion() {
-    OpenidClientProperties client1 = openidClients.getOpenid().get("client1");
-    Assertions.assertNotNull(client1);
-    client1.getTokenConfig().setTokenUrl(URI.create(BASE_URL + "/token"));
+    firstOpenIdClientProperties.getTokenConfig().setTokenUrl(URI.create(BASE_URL + "/token"));
     MockServerUtils.post("/token", 1, contents("json/openid-token.json"), HttpStatus.OK);
 
-    StepVerifier.create(openidTokenService.getToken())
+    StepVerifier.create(firstOpenIdTokenService.getToken())
         .assertNext(StringUtils::hasText)
         .verifyComplete();
 
@@ -74,7 +92,7 @@ class OpenidAuthClientIT {
   private boolean notFound() {
     log.debug("In notFound() method.");
     try {
-      StepVerifier.create(openidTokenService.getToken())
+      StepVerifier.create(firstOpenIdTokenService.getToken())
           .expectErrorMatches(throwable -> {
             Assertions.assertInstanceOf(PiaWebClientException.class, throwable);
             PiaWebClientException e = (PiaWebClientException) throwable;

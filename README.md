@@ -37,12 +37,11 @@ to use their latest compatible version.
 ```yaml
 pia.webclient:
   openid:
-    default:
-      connection-provider-name: client1-provider
+    simpleOpenId:
+      connection-provider-name: simpleOpenId
       token-config:
         token-url: http://localhost:1080/token
         cache-expiry-seconds: 3600
-        cache-name: client1-token-cache
         form-data:
           username: user
           password: pass
@@ -54,8 +53,8 @@ pia.webclient:
 ```yaml
 pia.webclient:
   openid:
-    default:
-      connection-provider-name: client2-provider
+    fullOpenId:
+      connection-provider-name: fullOpenId
       max-connections: 100
       request-timeout-millis: 50_000
       response-timeout-millis: 50_000
@@ -81,7 +80,6 @@ pia.webclient:
         token-url: http://localhost:1080/token
         basic-auth-username: user
         basic-auth-password: pass
-        cache-name: client2-token-cache
         cache-expiry-seconds: 3600
         token-field: access_token
         username-field: username
@@ -104,20 +102,20 @@ public class OpenidAuthClientsConfig {
   private final OpenidClients openidClients;
 
   @Bean
-  public OpenidClientProperties defaultClientProperties() {
-    return openidClients.getOpenid().get("default");
+  public OpenidClientProperties fullOpenIdClientProperties() {
+    return openidClients.getOpenid().get("fullOpenId");
   }
 
   @Bean
-  public WebClient defaultWebClient(
-      @Qualifier("defaultClientProperties") OpenidClientProperties defaultClientProperties) {
-    return openidWebClientProvider.buildWebClient(defaultClientProperties);
+  public WebClient fullOpenIdWebClient(
+      @Qualifier("fullOpenIdClientProperties") OpenidClientProperties fullOpenIdClientProperties) {
+    return openidWebClientProvider.buildWebClient(fullOpenIdClientProperties);
   }
 
   @Bean
-  public OpenidTokenService defaultTokenService(
-      @Qualifier("defaultClientProperties") OpenidClientProperties defaultClientProperties) {
-    return openidWebClientProvider.buildTokenService(defaultClientProperties);
+  public OpenidTokenService fullOpenIdTokenService(
+      @Qualifier("fullOpenIdClientProperties") OpenidClientProperties fullOpenIdClientProperties) {
+    return openidWebClientProvider.buildTokenService(fullOpenIdClientProperties);
   }
 }
 ``` 
@@ -129,10 +127,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SampleClientImpl() {
 
-  private final WebClient defaultWebClient;
-  private final OpenidTokenService defaultTokenService;
-  private final OpenidClientProperties defaultClientProperties;
-  ...
+  private final OpenidClientProperties fullOpenIdClientProperties;
+  private final WebClient fullOpenIdWebClient;
+  private final OpenidTokenService fullOpenIdTokenService;
+  // ...
 }
 ```
 ### B) Basic Auth WebClient
@@ -149,8 +147,8 @@ public class SampleClientImpl() {
 ```yaml
 pia.webclient:
   basic:
-    client1:
-      connection-provider-name: client1-provider
+    simpleBasic:
+      connection-provider-name: simpleBasic
       token-config:
         username: user
         password: pass
@@ -160,8 +158,8 @@ pia.webclient:
 ```yaml
 pia.webclient:
   basic:
-    client2:
-      connection-provider-name: client2-provider
+    fullBasic:
+      connection-provider-name: fullBasic
       max-connections: 100
       request-timeout-millis: 50_000
       response-timeout-millis: 50_000
@@ -193,20 +191,20 @@ public class BasicAuthClientsConfig {
   private final BasicAuthClients basicAuthClients;
 
   @Bean
-  public BasicClientProperties basicClientProperties() {
-    return basicAuthClients.getOpenid().get("client1");
+  public BasicClientProperties simpleBasicClientProperties() {
+    return basicAuthClients.getOpenid().get("simpleBasic");
   }
   
   @Bean
-  public WebClient basicWebClient(
-      @Qualifier("basicClientProperties") BasicClientProperties basicClientProperties) {
-    return basicWebClientProvider.buildWebClient(basicClientProperties);
+  public WebClient simpleBasicWebClient(
+      @Qualifier("simpleBasicClientProperties") BasicClientProperties simpleBasicClientProperties) {
+    return basicWebClientProvider.buildWebClient(simpleBasicClientProperties);
   }
 
   @Bean
-  public BasicTokenService basicTokenService(
-      @Qualifier("basicClientProperties") BasicClientProperties basicClientProperties) {
-    return basicWebClientProvider.buildTokenService(basicClientProperties);
+  public BasicTokenService simpleBasicTokenService(
+      @Qualifier("simpleBasicClientProperties") BasicClientProperties simpleBasicClientProperties) {
+    return basicWebClientProvider.buildTokenService(simpleBasicClientProperties);
   }
 }
 
@@ -219,10 +217,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SampleClientImpl() {
 
-  private final WebClient basicWebClient;
-  private final BasicTokenService basicTokenService;
-  private final BasicClientProperties basicClientProperties;
-  ...
+  private final BasicClientProperties simpleBasicClientProperties;
+  private final WebClient simpleBasicWebClient;
+  private final BasicTokenService simpleBasicTokenService;
+  // ...
 }
 ```
 
@@ -237,3 +235,6 @@ public class SampleClientImpl() {
 - Marks PiaWebClientException Serializable
 ### 1.0.4
 - Added new configuration property "usernameField" to openidTokenProperties.
+### 1.0.5
+- Removes configuration property "cacheName" from OpenidTokenProperties
+- Fixes providers' local caching issue if multiple connections are configured

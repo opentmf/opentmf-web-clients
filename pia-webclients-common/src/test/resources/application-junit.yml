@@ -13,7 +13,6 @@ client:
   token-config:
     use-mock: false
     token-url: http://localhost:1080/auth/token
-    cache-name: junit-cache
     form-data:
       grant-type: client_credentials
       scope: myScope
