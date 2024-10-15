@@ -13,12 +13,12 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>pia-basic-webclient-provider</artifactId>
+      <artifactId>pia-basic-webclients-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>pia-openid-webclient-provider</artifactId>
+      <artifactId>pia-openid-webclients-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

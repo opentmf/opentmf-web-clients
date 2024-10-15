@@ -25,14 +25,6 @@ to use their latest compatible version.
 
 ### A) Openid Auth WebClient
 
-#### Maven Dependency
-```xml
-<dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-openid-webclient-provider</artifactId>
-</dependency>
-```
-
 #### Sample Configuration (Minimal)
 ```yaml
 pia.webclient:
@@ -89,8 +81,18 @@ pia.webclient:
           scope: openid
           grant_type: password
 ```
-### Configure Beans
-Applications must configure their own WebClient and TokenService beans through the exposed providers.
+#### First Method: Static Configuration
+We will need to expose ClientProperties, WebClient and TokenService beans ourselves through configuration.
+
+##### Maven Dependency
+```xml
+<dependency>
+  <groupId>com.pia.commons</groupId>
+  <artifactId>pia-openid-webclient-provider</artifactId>
+</dependency>
+```
+##### Configure Beans
+In this method, applications must configure their own ClientProperties, WebClient and TokenService beans via OpenidWebClientProvider.
 
 ```java
 @Configuration
@@ -133,15 +135,32 @@ public class SampleClientImpl() {
   // ...
 }
 ```
-### B) Basic Auth WebClient
+#### Second (and Easy) Method: Dynamic Configuration
+Starting with pia-web-clients version 1.0.5, applications can now directly use the client beans through pia-openid-webclients-starter autoconfiguration library which takes care of traversing the openid client configurations and exposing necessary beans automatically.
 
-#### Maven Dependency
+##### Maven Dependency
 ```xml
 <dependency>
   <groupId>com.pia.commons</groupId>
-  <artifactId>pia-basic-webclient-provider</artifactId>
+  <artifactId>pia-openid-webclients-starter</artifactId>
 </dependency>
 ```
+That's it. Now you can autowire them at any point in your application:
+
+```java
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class SampleClientImpl() {
+
+  private final OpenidClientProperties fullOpenIdClientProperties;
+  private final WebClient fullOpenIdWebClient;
+  private final OpenidTokenService fullOpenIdTokenService;
+  // ...
+}
+```
+
+### B) Basic Auth WebClient
 
 #### Sample Configuration (Minimal)
 ```yaml
@@ -179,7 +198,18 @@ pia.webclient:
         password: pass
         charset: UTF-8
 ```
-### Configure Beans
+#### First Method: Static Configuration
+We will need to expose ClientProperties, WebClient and TokenService beans ourselves through configuration.
+
+##### Maven Dependency
+```xml
+<dependency>
+  <groupId>com.pia.commons</groupId>
+  <artifactId>pia-basic-webclient-provider</artifactId>
+</dependency>
+```
+
+##### Configure Beans
 Applications must configure their own WebClient and TokenService beans through the exposed providers.
 
 ```java
@@ -223,6 +253,29 @@ public class SampleClientImpl() {
   // ...
 }
 ```
+#### Second (and Easy) Method: Dynamic Configuration
+Starting with pia-web-clients version 1.0.5, applications can now directly use the client beans through pia-basic-webclients-starter autoconfiguration library which takes care of traversing the basic auth client configurations and exposing necessary beans automatically.
+
+##### Maven Dependency
+```xml
+<dependency>
+  <groupId>com.pia.commons</groupId>
+  <artifactId>pia-basic-webclients-starter</artifactId>
+</dependency>
+```
+That's it. Now you can autowire them at any point in your application:
+```java
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class SampleClientImpl() {
+
+  private final BasicClientProperties simpleBasicClientProperties;
+  private final WebClient simpleBasicWebClient;
+  private final BasicTokenService simpleBasicTokenService;
+  // ...
+}
+```
 
 ## Version History
 ### 1.0.0
@@ -238,3 +291,5 @@ public class SampleClientImpl() {
 ### 1.0.5
 - Removes configuration property "cacheName" from OpenidTokenProperties
 - Fixes providers' local caching issue if multiple connections are configured
+- Adds pia-basic-webclients-starter that dynamically exposes beans from configuration 
+- Adds pia-openid-webclients-starter that dynamically exposes beans from configuration 
