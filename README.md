@@ -92,7 +92,7 @@ We will need to expose ClientProperties, WebClient and TokenService beans oursel
 </dependency>
 ```
 ##### Configure Beans
-In this method, applications must configure their own ClientProperties, WebClient and TokenService beans via OpenidWebClientProvider.
+In this static configuration approach, applications must configure their own ClientProperties, WebClient and TokenService beans via OpenidWebClientProvider.
 
 ```java
 @Configuration
@@ -210,7 +210,7 @@ We will need to expose ClientProperties, WebClient and TokenService beans oursel
 ```
 
 ##### Configure Beans
-Applications must configure their own WebClient and TokenService beans through the exposed providers.
+In this static configuration approach, applications must configure their own WebClient and TokenService beans through the exposed providers.
 
 ```java
 @Configuration
