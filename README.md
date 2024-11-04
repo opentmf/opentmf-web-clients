@@ -124,8 +124,6 @@ public class OpenidAuthClientsConfig {
 And then you can use those beans via autowiring within your application.
 
 ```java
-import lombok.RequiredArgsConstructor;
-
 @RequiredArgsConstructor
 public class SampleClientImpl() {
 
@@ -148,8 +146,7 @@ Starting with pia-web-clients version 1.0.5, applications can now directly use t
 That's it. Now you can autowire them at any point in your application:
 
 ```java
-import lombok.RequiredArgsConstructor;
-
+@DependsOn("openidWebClientsStarter")
 @RequiredArgsConstructor
 public class SampleClientImpl() {
 
@@ -159,6 +156,7 @@ public class SampleClientImpl() {
   // ...
 }
 ```
+> **Note:** You have to depend on the marker `openIdWebClientsStarter` bean, so that the dynamically exposed webClient beans can be configured before your service. 
 
 ### B) Basic Auth WebClient
 
@@ -267,6 +265,7 @@ That's it. Now you can autowire them at any point in your application:
 ```java
 import lombok.RequiredArgsConstructor;
 
+@DependsOn("basicWebClientsStarter")
 @RequiredArgsConstructor
 public class SampleClientImpl() {
 
@@ -276,6 +275,7 @@ public class SampleClientImpl() {
   // ...
 }
 ```
+> **Note:** You have to depend on the marker `basicWebClientsStarter` bean, so that the dynamically exposed webClient beans can be configured before your service.
 
 ## Version History
 ### 1.0.0
@@ -292,4 +292,6 @@ public class SampleClientImpl() {
 - Removes configuration property "cacheName" from OpenidTokenProperties
 - Fixes providers' local caching issue if multiple connections are configured
 - Adds pia-basic-webclients-starter that dynamically exposes beans from configuration 
-- Adds pia-openid-webclients-starter that dynamically exposes beans from configuration 
+- Adds pia-openid-webclients-starter that dynamically exposes beans from configuration
+### 1.0.6
+- Started exposing marker beans for starter packages.
