@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.pia.commons</groupId>
     <artifactId>pia-web-clients</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>pia-basic-webclients-starter</artifactId>
