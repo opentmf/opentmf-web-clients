@@ -295,3 +295,5 @@ public class SampleClientImpl() {
 - Adds pia-openid-webclients-starter that dynamically exposes beans from configuration
 ### 1.0.6
 - Started exposing marker beans for starter packages.
+### 1.0.7
+- Started exposing beans if they are not already exposed, to help test cases run in parallel.

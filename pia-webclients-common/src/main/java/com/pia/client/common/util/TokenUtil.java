@@ -19,6 +19,10 @@ public class TokenUtil {
 
   public static final String CACHING_PROVIDER = "org.ehcache.jsr107.EhcacheCachingProvider";
 
+  public static final String CLIENT_PROPERTIES = "ClientProperties";
+  public static final String WEB_CLIENT = "WebClient";
+  public static final String TOKEN_SERVICE = "TokenService";
+
   public static String cacheKey(URI baseUrl, String scope, String username) {
     return ((username + " " + scope).trim() + " " + baseUrl).trim();
   }

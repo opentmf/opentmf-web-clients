@@ -17,22 +17,17 @@ import org.springframework.context.annotation.Bean;
 public class BasicWebClientsStarterAutoConfiguration {
 
   public BasicWebClientsStarterAutoConfiguration(ConfigurableApplicationContext ctx,
-      BasicAuthClients basicAuthClients,
-      BasicWebClientProvider basicWebClientProvider) {
-    var factory = ctx.getBeanFactory();
-    log.debug("Auto configuring BasicWebClientsStarter");
-    for (var entry : basicAuthClients.getBasic().entrySet()) {
-      var prefix = entry.getKey();
-      var properties = entry.getValue();
-      factory.registerSingleton(prefix + "ClientProperties", properties);
-      factory.registerSingleton(prefix + "WebClient",
-          basicWebClientProvider.buildWebClient(properties));
-      factory.registerSingleton(prefix + "TokenService",
-          basicWebClientProvider.buildTokenService(properties));
-      log.debug("Exposed: {} basic auth beans for WebClient, ClientProperties, and TokenService.", prefix);
-    }
+      BasicAuthClients basicAuthClients, BasicWebClientProvider basicWebClientProvider) {
+
+    var util = new BasicBeanRegistrationUtil(ctx.getBeanFactory(), basicWebClientProvider);
+    basicAuthClients.getBasic().forEach(util::registerBeansIfNecessary);
   }
 
+  /**
+   * Marker bean to manage dependencies easily.
+   *
+   * @return a String with the value "basicWebClientsStarter".
+   */
   @Bean
   public String basicWebClientsStarter() {
     return "basicWebClientsStarter";

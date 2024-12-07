@@ -12,6 +12,7 @@ import com.pia.client.openid.service.api.OpenidTokenServiceMockImpl;
 import com.pia.client.openid.service.api.OpenidWebClientProvider;
 import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
+import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
@@ -63,7 +64,14 @@ public class OpenidWebClientProviderImpl
 
     var cachingProvider = Caching.getCachingProvider(CACHING_PROVIDER);
 
-    return cachingProvider.getCacheManager()
-        .createCache(properties.getConnectionProviderName(), config);
+    CacheManager cacheManager = cachingProvider.getCacheManager();
+    var existingCache = cacheManager.getCache(
+        properties.getConnectionProviderName(),
+        String.class,
+        ObjectNode.class);
+
+    return existingCache == null
+        ? cacheManager.createCache(properties.getConnectionProviderName(), config)
+        : existingCache;
   }
 }
