@@ -35,7 +35,7 @@
     <sonar-plugin.version>5.0.0.4389</sonar-plugin.version>
     <sonar.java.source>${java.version}</sonar.java.source>
     <sonar.java.target>${java.version}</sonar.java.target>
-    <spring-boot.version>3.4.0</spring-boot.version>
+    <spring-boot.version>3.4.1</spring-boot.version>
   </properties>
 
   <dependencyManagement>

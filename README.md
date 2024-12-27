@@ -297,3 +297,5 @@ public class SampleClientImpl() {
 - Started exposing marker beans for starter packages.
 ### 1.0.7
 - Started exposing beans if they are not already exposed, to help test cases run in parallel.
+### 1.0.8
+- Stopped depending on spring-boot-starter-webflux, to support synchronous spring-web applications (i.e. web-application-type = servlet) with fewer dependencies and getting rid of potential auto configurations of webflux. That way we restrict the dependencies to provide a reactive WebClient, but not the whole reactive webflux server layer.
