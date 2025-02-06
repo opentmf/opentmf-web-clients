@@ -16,7 +16,7 @@ import reactor.test.StepVerifier;
 
 @SpringBootTest
 @ActiveProfiles("junit")
-@Import(OpenIdClientAutoConfiguration.class)
+@Import(ClientAutoConfiguration.class)
 class OpenIdWebClient1IT {
 
   private static final String ENDPOINT = "/endPoint";

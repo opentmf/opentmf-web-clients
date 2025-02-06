@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @SpringBootTest
 @ActiveProfiles("junit2")
-@Import(OpenIdClientAutoConfiguration.class)
+@Import(ClientAutoConfiguration.class)
 class OpenIdWebClient2IT {
 
   @Autowired
