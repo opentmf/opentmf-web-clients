@@ -2,6 +2,7 @@ package com.pia.client.common.model;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -110,6 +111,7 @@ public abstract class BaseClientProperties {
     /**
     * The keyStore, that holds the private key and the received client certificate(s).
     */
+    @NotNull
     Certificate keyStore;
 
     /**
@@ -147,7 +149,7 @@ public abstract class BaseClientProperties {
   private void postConstruct() {
     if (certificates != null && proxyConfig != null) {
       throw new IllegalArgumentException(
-          "Proxy is not supported for mTls connection.");
+          "Proxy is not supported for mutual TLS connection.");
     }
   }
 }

@@ -55,10 +55,6 @@ public final class WebClientConfigUtil {
     var sslContext = buildSslContext(clientProperties);
     var httpClient = httpClient(logbook, sslContext, clientProperties);
 
-    if( clientProperties.getProxyConfig() != null
-        && clientProperties.getCertificates() != null) {
-      throw new IllegalArgumentException("Proxy is not supported for mTls connection.");
-    }
     if (clientProperties.getProxyConfig() != null) {
       httpClient.proxy(typeSpec -> WebClientConfigUtil.proxy(typeSpec, clientProperties));
     }
@@ -103,7 +99,7 @@ public final class WebClientConfigUtil {
   }
 
   private static SslContext buildSslContext(BaseClientProperties clientProperties) throws SSLException {
-    if (Objects.nonNull(clientProperties.getCertificates())){
+    if (clientProperties.getCertificates() != null) {
       return buildMtlsSslContext(clientProperties);
     }
     return buildGenericSslContext();
