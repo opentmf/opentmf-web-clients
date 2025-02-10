@@ -112,18 +112,18 @@ public abstract class BaseClientProperties {
     * The keyStore, that holds the private key and the received client certificate(s).
     */
     @NotNull
-    Certificate keyStore;
+    KeyStore keyStore;
 
     /**
      * The keyStore, that holds the server certificates. If trustStore is not specified, Java VM's
      * cacerts file will be used by default.
      */
-    Certificate trustStore;
+    TrustStore trustStore;
 
     @Validated
     @Getter
     @Setter
-    public static class Certificate {
+    public static class KeyStore {
 
       /**
        * The keyStore password.
@@ -143,6 +143,24 @@ public abstract class BaseClientProperties {
       @NotBlank
       String base64Jks;
     }
+
+    @Validated
+    @Getter
+    @Setter
+    public static class TrustStore {
+
+      /**
+       * The keyStore password.
+       */
+      String password;
+
+      /**
+       * The keyStore binary file contents in the form of a base-64 encoded string.
+       */
+      @NotBlank
+      String base64Jks;
+    }
+
   }
 
   @PostConstruct

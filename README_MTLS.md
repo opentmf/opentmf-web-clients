@@ -1,85 +1,93 @@
-# pia-web-clients
-General purpose WebClient libraries that includes Logbook, configurable connection properties, fixed headers support, and token retrieval with implicit access token caching.
+# pia-web-clients Mutual MTLS Support
+To enable Mutual TLS handshake for pia web clients, you need to provide the java key store ( Jks) and truststore in the configuration. It can be used for both basic or openId type clients. 
+Due to nature of the TLS handshake, the client can not both use proxy and Mutual TLS handshake at the same time. Thus, the web-clients will complain at startup if you provide both proxy and mutual SSL certificate settings.
 
-Currently, two providers have been provided:
+Steps to generate and provide a Jks with a signed certificate for pia web clients:
+1. Clarify parameters for the certificate
+2. Create a keystore
+3. Create a CSR
+4. Send the CSR to the CA
+5. Import the signed certificate to the keystore
+6. Configure the client to use the keystore
+7. Test the connection
 
-1. Openid Auth WebClient
-2. Basic Auth WebClient
+Steps to provide truststore for pia web clients:
+1. Obtain Server certificate
+2. Export it into a jks file
+3. Configure the client to use the truststore
+4. Test the connection
 
-## Usage
+### Clarify parameters for the certificate:
+Please clarify the following parameters:
+ CN = Common Name
+ OU = Organizationl Unit
+ O = Organization
+ L = Location
+ ST =
+ C = Country
 
-### Import pia-commons dependency versions
-This will manage the dependencies of the pia-commons libraries
-to use their latest compatible version.
-```xml
-<dependencyManagement>
-  <dependency>
-    <groupId>com.pia.commons</groupId>
-    <artifactId>pia-commons-versions</artifactId>
-    <version>RELEASE</version>
-    <type>pom</type>
-    <scope>import</scope>
-  </dependency>
-</dependencyManagement>
+Especially the Common Name is important as it will be used to identify the client.
+
+### Create Keystore
+
+```bash
+keytool -genkey -alias client -keyalg RSA -keysize 4096 -validity 730 \
+-keypass mypassword \
+-storetype pkcs12 \
+-keystore pia-mtls-keystore-for-prod-env.jks \
+-storepass mypassword \
+-dname "CN=prod-dsync-pia-com, OU=PPE, O=Pia, L=Istanbul, ST=Istanbul, C=TR, EMAILADDRESS="
 ```
 
-### A) Openid Auth WebClient
 
-#### Sample Configuration (Minimal)
-```yaml
-pia.webclient:
-  openid:
-    simpleOpenId:
-      connection-provider-name: simpleOpenId
-      token-config:
-        token-url: http://localhost:1080/token
-        cache-expiry-seconds: 3600
-        form-data:
-          username: user
-          password: pass
-          scope: openid
-          grant_type: password
+### Create CSR ( Certficiate Signing Request)
+
+```bash
+keytool -certreq -v -alias client \
+-file pia-mtls-keystore-for-prod-env.csr \
+-keystore pia-mtls-keystore-for-prod-env.jks \
+-storepass mypassword
 ```
 
-#### Sample Configuration (Full)
+### Send the CSR to the CA
+The CSR should be sent to the Certificate Authority to be signed. The CA will return a signed certificate ( at least a P7B pem file).
+
+### Import the signed certificate to the keystore
+Once we receive signed certificate we need to import it as a trusted certificate into the JKS. 
+
+```bash
+keytool -import -trustcacerts -alias client \
+-file cert_prod-dsync-pia-com.p7b.pem \
+-keystore pia-mtls-keystore-for-prod-env.jks \
+-storepass mypassword
+```
+
+### Provide the Jks in base64 encoded format:
+The keystore now should be encoded in base64 format. This is due to Kubernetes not supporting binary data in the configuration files. Pia-web-clients need this JKS file in Base64 format. It will decode it back to binary format when it loads it.
+
+```bash
+base64 -w0 cert.jks > cert.jks.base64
+```
+Please note that you must use -w0 to disable wrap the lines.
+
+If you need to provide it in sealed secrets for kubernetes environments, you will need to encode base64 one more time as sealed secrets will decode back when it attaches to the kubernetes pods.
+
+For sealed secrets:
+```bash
+base64 -w0 cert.jks.base64 > cert.jks.base64.base64
+```
+
+now it is ready to copy-paste into a sealed secret field for signing.
+
+### Configure the client to use the keystore
+
+Please provide it in the configuration file as follows into the  key-store.base64-jks field.:
+
+For openid clients:
 ```yaml
 pia.webclient:
   openid:
     fullOpenId:
-      connection-provider-name: fullOpenId
-      max-connections: 100
-      request-timeout-millis: 50_000
-      response-timeout-millis: 50_000
-      num-retries: 3
-      retry-wait-millis: 5_000
-      fixed-headers:
-        Accept: application/json
-        AnotherHeader: AnotherValue
-      paths:
-        getCatalog:
-          path: /catalog
-          scope: GET_CATALOG_SCOPE
-        postCatalog:
-          path: /catalog
-          scope: POST_CATALOG_SCOPE
-      proxy-config:
-        proxy-host: http://localhost
-        proxy-port: 1234
-        non-proxy-hosts:
-          - mockserver
-          - camunda7
-      token-config:
-        token-url: http://localhost:1080/token
-        basic-auth-username: user
-        basic-auth-password: pass
-        cache-expiry-seconds: 3600
-        token-field: access_token
-        username-field: username
-        form-data:
-          username: user
-          password: pass
-          scope: openid
-          grant_type: password
       certificates:
         key-store:
           password: mypassword
@@ -89,120 +97,13 @@ pia.webclient:
           password: mypassword
           base64-jks: MIIFcgIBAzCCBRwGCSqGSIb3DQEHAaCCBQ0EggUJMIIFBTCCBQEGCSqGSIb3DQEHBqCCBPIwggTuAgEAMIIE5wYJKoZIhvcNAQcBMGYGCSqGSIb3DQEFDTBZMDgGCSqGSIb3DQEFDDArBBRGIB2m7QhFD+1ONYaR1cx2qHu5pAICJxACASAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEEEjhPZeH+Ye0CeBcbfB7XCAggRwRGa/OSpaU7tpXvtc+SE4Lv+/rROSRtyXD4FVFi+WlagXCDSlpHo6Uer+yaxZJgARL4HRB8hE8LGdhPNXbWl2eAT43QUdlRdC8FxXnizGrXK7gGfwOb3nCuDt1PQi8kNZSJgEj50cxEyeX7jr0ThOkbJaEMxizQp5Yl9V7kHE0SH9stHFvcN8fKIZeL5PIODSgeDvMvksW8mnxez1kLrgfRyFWzdHotcM32Msh+3xlZ0e2v+YGHgks/SjW2y8zm21Ap2ryiZDQty+OtQpRGziTCs3kxx00Hsy7r4chztsq08suNn2stlk2jCzt/ZAVva7xjBiF0sfrS23Px5URj8CVNUWnroAdi1A0pUjYRvr7TEHnrAsJU6XPN5jamuB2GM3v4jxtwoIKT59zbOU3fsAVhgrE+cBOBCFbttxyaNvaDVtpHGfZ8daDvkErqFayNDC/+W2q7FCBFMyAjrCVLyTa+iab4TMU7YFMdY6G6xsESzJA1KV2yKHHbju4jUKjWRYGME4wqKHh59Rrayc+QJpp3YLGv3smCqe6D8MI9F7N4qnHe2/EUSCY3dnafKX6GZDKf+Y47JHYeDm0bLicBmmqX7z6fmRvYCAf05MFEeleC19WIl/TqKULWrwLcmMrN0MeaJMf1Ph01moKalT7dnESP3ihlg8N+LxetR3e2qcU8LlJoNNhrKr9MOQIKyBnVJY6czpM9t3JVHZTeMG/YnpHRVDgsLNnL7KibSjEb4T9xUUf0yTYjjndoJr3ZyuY6XdtpjsNaqZGH2XF403kzat6vHfUqtiH1Kniq3kbFl+BECzbFxoNbHPoqFt7DrK4nJBHGuJrqbvPGD3/BIYjGS0Do+XCP/8KXdD/3coZC784SAmbLfbpEz22wSBgV60XoBeYySbAFe6HSexPEn2Dy1PbXumEmMH6qMwzKAltZhRUHsVMNx48PJZxUdpICmD/UY3AmdDpa5o+1fiE66Azjq28s7gLzAmAWYm22lf3TgvSWt7I4EynjH16FoBTKuiHKitqdn1EwFLTvUjqqPfjjbnnxDswHvErc4S60dXVYi0UlnTbEOuaYwn5G0nE6ymrqUMhTs69HD3L/2uDiq1ylHLe9qlVdLs8yxEe7jegRYL63z3bMSmy8AIP5rZQs99P4U0WZkDmUJpqaza0XIWnI+ZHqVKoSMFJElXcIos3k4uHUH6H/J14Y1sFxeKY+565e7YkPHyqBjex6LFvtknroYntgnTWmkRjEcvwflrxGl06CB2/Cd3DdKyW+m6YSZHoYISw05Hb1RksmKVWtk02ZdnnTI76Vv0Op9IWmzTCKpEs1hc5IBHaIBQW9QQSZB82ebDYqQ06OC3UT7XOTGTVhUYFc8Zi3hMM+LnGBZZtIXB7V0o2yKHH8LhVhuqU3z3rFwm+vIxf+WtxlkM+9KbtcBwRoS7iZCyidBrskot1JCxSEpoZt4lH3RFpr2cfwc9ZG90fBDceNXKahqQqM2izjHQab3gANvfoZaPJW6ZJwGRhd0wTTAxMA0GCWCGSAFlAwQCAQUABCBQwEHUr3gxQE2MgcFtWQf5RsHIXWdHQrKZJYcZIRnv+gQUrBrsbse1v+v+8erOX4+7KC7GAHgCAicQ
 ```
-#### First Method: Static Configuration
-We will need to expose ClientProperties, WebClient and TokenService beans ourselves through configuration.
 
-##### Maven Dependency
-```xml
-<dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-openid-webclient-provider</artifactId>
-</dependency>
-```
-##### Configure Beans
-In this static configuration approach, applications must configure their own ClientProperties, WebClient and TokenService beans via OpenidWebClientProvider.
+and for basic clients:
 
-```java
-@Configuration
-@RequiredArgsConstructor
-@EnableConfigurationProperties(OpenidClients.class)
-public class OpenidAuthClientsConfig {
-
-  private final OpenidWebClientProvider openidWebClientProvider;
-  private final OpenidClients openidClients;
-
-  @Bean
-  public OpenidClientProperties fullOpenIdClientProperties() {
-    return openidClients.getOpenid().get("fullOpenId");
-  }
-
-  @Bean
-  public WebClient fullOpenIdWebClient(
-      @Qualifier("fullOpenIdClientProperties") OpenidClientProperties fullOpenIdClientProperties) {
-    return openidWebClientProvider.buildWebClient(fullOpenIdClientProperties);
-  }
-
-  @Bean
-  public OpenidTokenService fullOpenIdTokenService(
-      @Qualifier("fullOpenIdClientProperties") OpenidClientProperties fullOpenIdClientProperties) {
-    return openidWebClientProvider.buildTokenService(fullOpenIdClientProperties);
-  }
-}
-``` 
-And then you can use those beans via autowiring within your application.
-
-```java
-@RequiredArgsConstructor
-public class SampleClientImpl() {
-
-  private final OpenidClientProperties fullOpenIdClientProperties;
-  private final WebClient fullOpenIdWebClient;
-  private final OpenidTokenService fullOpenIdTokenService;
-  // ...
-}
-```
-#### Second (and Easy) Method: Dynamic Configuration
-Starting with pia-web-clients version 1.0.5, applications can now directly use the client beans through pia-openid-webclients-starter autoconfiguration library which takes care of traversing the openid client configurations and exposing necessary beans automatically.
-
-##### Maven Dependency
-```xml
-<dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-openid-webclients-starter</artifactId>
-</dependency>
-```
-That's it. Now you can autowire them at any point in your application:
-
-```java
-@DependsOn("openidWebClientsStarter")
-@RequiredArgsConstructor
-public class SampleClientImpl() {
-
-  private final OpenidClientProperties fullOpenIdClientProperties;
-  private final WebClient fullOpenIdWebClient;
-  private final OpenidTokenService fullOpenIdTokenService;
-  // ...
-}
-```
-> **Note:** You have to depend on the marker `openIdWebClientsStarter` bean, so that the dynamically exposed webClient beans can be configured before your service. 
-
-### B) Basic Auth WebClient
-
-#### Sample Configuration (Minimal)
-```yaml
-pia.webclient:
-  basic:
-    simpleBasic:
-      connection-provider-name: simpleBasic
-      token-config:
-        username: user
-        password: pass
-```
-
-#### Sample Configuration (Full)
 ```yaml
 pia.webclient:
   basic:
     fullBasic:
-      connection-provider-name: fullBasic
-      max-connections: 100
-      request-timeout-millis: 50_000
-      response-timeout-millis: 50_000
-      num-retries: 3
-      retry-wait-millis: 5_000
-      fixed-headers:
-        Accept: application/json
-        AnotherHeader: AnotherValue
-      proxy-config:
-        proxy-host: http://localhost
-        proxy-port: 1234
-        non-proxy-hosts:
-          - mockserver
-          - camunda7
-      token-config:
-        username: user
-        password: pass
-        charset: UTF-8
       certificates:
         key-store:
           password: mypassword
@@ -212,113 +113,29 @@ pia.webclient:
           password: mypassword
           base64-jks: MIIFcgIBAzCCBRwGCSqGSIb3DQEHAaCCBQ0EggUJMIIFBTCCBQEGCSqGSIb3DQEHBqCCBPIwggTuAgEAMIIE5wYJKoZIhvcNAQcBMGYGCSqGSIb3DQEFDTBZMDgGCSqGSIb3DQEFDDArBBRGIB2m7QhFD+1ONYaR1cx2qHu5pAICJxACASAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEEEjhPZeH+Ye0CeBcbfB7XCAggRwRGa/OSpaU7tpXvtc+SE4Lv+/rROSRtyXD4FVFi+WlagXCDSlpHo6Uer+yaxZJgARL4HRB8hE8LGdhPNXbWl2eAT43QUdlRdC8FxXnizGrXK7gGfwOb3nCuDt1PQi8kNZSJgEj50cxEyeX7jr0ThOkbJaEMxizQp5Yl9V7kHE0SH9stHFvcN8fKIZeL5PIODSgeDvMvksW8mnxez1kLrgfRyFWzdHotcM32Msh+3xlZ0e2v+YGHgks/SjW2y8zm21Ap2ryiZDQty+OtQpRGziTCs3kxx00Hsy7r4chztsq08suNn2stlk2jCzt/ZAVva7xjBiF0sfrS23Px5URj8CVNUWnroAdi1A0pUjYRvr7TEHnrAsJU6XPN5jamuB2GM3v4jxtwoIKT59zbOU3fsAVhgrE+cBOBCFbttxyaNvaDVtpHGfZ8daDvkErqFayNDC/+W2q7FCBFMyAjrCVLyTa+iab4TMU7YFMdY6G6xsESzJA1KV2yKHHbju4jUKjWRYGME4wqKHh59Rrayc+QJpp3YLGv3smCqe6D8MI9F7N4qnHe2/EUSCY3dnafKX6GZDKf+Y47JHYeDm0bLicBmmqX7z6fmRvYCAf05MFEeleC19WIl/TqKULWrwLcmMrN0MeaJMf1Ph01moKalT7dnESP3ihlg8N+LxetR3e2qcU8LlJoNNhrKr9MOQIKyBnVJY6czpM9t3JVHZTeMG/YnpHRVDgsLNnL7KibSjEb4T9xUUf0yTYjjndoJr3ZyuY6XdtpjsNaqZGH2XF403kzat6vHfUqtiH1Kniq3kbFl+BECzbFxoNbHPoqFt7DrK4nJBHGuJrqbvPGD3/BIYjGS0Do+XCP/8KXdD/3coZC784SAmbLfbpEz22wSBgV60XoBeYySbAFe6HSexPEn2Dy1PbXumEmMH6qMwzKAltZhRUHsVMNx48PJZxUdpICmD/UY3AmdDpa5o+1fiE66Azjq28s7gLzAmAWYm22lf3TgvSWt7I4EynjH16FoBTKuiHKitqdn1EwFLTvUjqqPfjjbnnxDswHvErc4S60dXVYi0UlnTbEOuaYwn5G0nE6ymrqUMhTs69HD3L/2uDiq1ylHLe9qlVdLs8yxEe7jegRYL63z3bMSmy8AIP5rZQs99P4U0WZkDmUJpqaza0XIWnI+ZHqVKoSMFJElXcIos3k4uHUH6H/J14Y1sFxeKY+565e7YkPHyqBjex6LFvtknroYntgnTWmkRjEcvwflrxGl06CB2/Cd3DdKyW+m6YSZHoYISw05Hb1RksmKVWtk02ZdnnTI76Vv0Op9IWmzTCKpEs1hc5IBHaIBQW9QQSZB82ebDYqQ06OC3UT7XOTGTVhUYFc8Zi3hMM+LnGBZZtIXB7V0o2yKHH8LhVhuqU3z3rFwm+vIxf+WtxlkM+9KbtcBwRoS7iZCyidBrskot1JCxSEpoZt4lH3RFpr2cfwc9ZG90fBDceNXKahqQqM2izjHQab3gANvfoZaPJW6ZJwGRhd0wTTAxMA0GCWCGSAFlAwQCAQUABCBQwEHUr3gxQE2MgcFtWQf5RsHIXWdHQrKZJYcZIRnv+gQUrBrsbse1v+v+8erOX4+7KC7GAHgCAicQ
 ```
-#### First Method: Static Configuration
-We will need to expose ClientProperties, WebClient and TokenService beans ourselves through configuration.
 
-##### Maven Dependency
-```xml
-<dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-basic-webclient-provider</artifactId>
-</dependency>
+## Provide Truststore Jks file:
+The Key store keeps the client certificate informations. It contains the Private Key and Certificate. The Trust store keeps the server certificate information.
+
+If the Server certificate has been signed by a CA that is global and registered in Java cacerts then you do not need to provide it explicitly as it will be accepted through Java cacerts.
+Otherwise, you need to obtain server certificate. Then encode it in base64 and set it in truststore configuration.
+
+To provide the truststore jks file, if the server can use the following configuration ( assumign you received a .crt file ):
+
+```bash
+keytool -import -file cert.crt -keypass mypassword -keystore truststore-cert.jks -storepass mypassword
 ```
 
-##### Configure Beans
-In this static configuration approach, applications must configure their own WebClient and TokenService beans through the exposed providers.
+Then you can encode the truststore-cert.jks file in base64 and set it in the configuration:
 
-```java
-@Configuration
-@RequiredArgsConstructor
-public class BasicAuthClientsConfig {
-
-  private final BasicWebClientProvider basicWebClientProvider;
-  private final BasicAuthClients basicAuthClients;
-
-  @Bean
-  public BasicClientProperties simpleBasicClientProperties() {
-    return basicAuthClients.getOpenid().get("simpleBasic");
-  }
-  
-  @Bean
-  public WebClient simpleBasicWebClient(
-      @Qualifier("simpleBasicClientProperties") BasicClientProperties simpleBasicClientProperties) {
-    return basicWebClientProvider.buildWebClient(simpleBasicClientProperties);
-  }
-
-  @Bean
-  public BasicTokenService simpleBasicTokenService(
-      @Qualifier("simpleBasicClientProperties") BasicClientProperties simpleBasicClientProperties) {
-    return basicWebClientProvider.buildTokenService(simpleBasicClientProperties);
-  }
-}
-
-``` 
-And then you can use those beans via autowiring within your application.
-
-```java
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-public class SampleClientImpl() {
-
-  private final BasicClientProperties simpleBasicClientProperties;
-  private final WebClient simpleBasicWebClient;
-  private final BasicTokenService simpleBasicTokenService;
-  // ...
-}
+```bash
+base64 -w0 truststore-cert.jks > truststore-cert.jks.base64
 ```
-#### Second (and Easy) Method: Dynamic Configuration
-Starting with pia-web-clients version 1.0.5, applications can now directly use the client beans through pia-basic-webclients-starter autoconfiguration library which takes care of traversing the basic auth client configurations and exposing necessary beans automatically.
 
-##### Maven Dependency
-```xml
-<dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-basic-webclients-starter</artifactId>
-</dependency>
+Then if you need to provide in a sealed secret, you will need to encode base64 one more time:
+
+```bash 
+base64 -w0 truststore-cert.jks.base64 > truststore-cert.jks.base64.base54
 ```
-That's it. Now you can autowire them at any point in your application:
-```java
-import lombok.RequiredArgsConstructor;
 
-@DependsOn("basicWebClientsStarter")
-@RequiredArgsConstructor
-public class SampleClientImpl() {
-
-  private final BasicClientProperties simpleBasicClientProperties;
-  private final WebClient simpleBasicWebClient;
-  private final BasicTokenService simpleBasicTokenService;
-  // ...
-}
-```
-> **Note:** You have to depend on the marker `basicWebClientsStarter` bean, so that the dynamically exposed webClient beans can be configured before your service.
-
-
-### Mutual TLS support:
-It supports Mutual TLS given you provide at least keyStore in certificate parameters. It will complain if both mTls and proxy configurations are provided. Truststore certificate is optional. Passwords for certificates are optional.
-For more information on configuring for Mutual TLS support please check [MTLS Readme](./README_MTLS.md)
-
-## Version History
-### 1.0.0
-- Initial Version
-### 1.0.1
-- Fixes the BasicWebClientProviderAutoConiguration class name.
-### 1.0.2
-- moves getToken(scope) method to generic layer
-### 1.0.3
-- Marks PiaWebClientException Serializable
-### 1.0.4
-- Added new configuration property "usernameField" to openidTokenProperties.
-### 1.0.5
-- Removes configuration property "cacheName" from OpenidTokenProperties
-- Fixes providers' local caching issue if multiple connections are configured
-- Adds pia-basic-webclients-starter that dynamically exposes beans from configuration 
-- Adds pia-openid-webclients-starter that dynamically exposes beans from configuration
-### 1.0.6
-- Started exposing marker beans for starter packages.
-### 1.0.7
-- Started exposing beans if they are not already exposed, to help test cases run in parallel.
-### 1.0.8
-- Stopped depending on spring-boot-starter-webflux, to support synchronous spring-web applications (i.e. web-application-type = servlet) with fewer dependencies and getting rid of potential auto configurations of webflux. That way we restrict the dependencies to provide a reactive WebClient, but not the whole reactive webflux server layer.
-### 1.0.9
-- Supports Mutual TLS protocol.
+Then you can set the trust-store.base64-jks parameter in the configuration:
