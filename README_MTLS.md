@@ -120,7 +120,7 @@ The Key store keeps the client certificate informations. It contains the Private
 If the Server certificate has been signed by a CA that is global and registered in Java cacerts then you do not need to provide it explicitly as it will be accepted through Java cacerts.
 Otherwise, you need to obtain server certificate. Then encode it in base64 and set it in truststore configuration.
 
-To provide the truststore jks file, if the server can use the following configuration ( assumign you received a .crt file ):
+To provide the truststore jks file, you can use the following configuration ( assuming you received a .crt file ):
 
 ```bash
 keytool -import -file cert.crt -keypass mypassword -keystore truststore-cert.jks -storepass mypassword
