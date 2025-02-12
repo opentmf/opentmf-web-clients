@@ -8,11 +8,16 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import java.io.ByteArrayInputStream;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
 import lombok.Generated;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,6 +38,7 @@ import reactor.netty.transport.logging.AdvancedByteBufFormat;
  * Common methods when building a web client.
  *
  * @author Gokhan Demir
+ * @author Cezmi Aslan for mTls support
  */
 public final class WebClientConfigUtil {
 
@@ -46,14 +52,16 @@ public final class WebClientConfigUtil {
   public static HttpClient httpClient(
       Logbook logbook,
       BaseClientProperties clientProperties) throws SSLException {
-    var httpClient = httpClient(logbook, buildSslContext(), clientProperties);
-    if (Objects.nonNull(clientProperties.getProxyConfig())) {
+    var sslContext = buildSslContext(clientProperties);
+    var httpClient = httpClient(logbook, sslContext, clientProperties);
+
+    if (clientProperties.getProxyConfig() != null) {
       httpClient.proxy(typeSpec -> WebClientConfigUtil.proxy(typeSpec, clientProperties));
     }
     return httpClient;
   }
 
-  public static HttpClient httpClient(
+  private static HttpClient httpClient(
       Logbook logbook,
       SslContext sslContext,
       BaseClientProperties clientProperties) {
@@ -73,7 +81,7 @@ public final class WebClientConfigUtil {
 
   public static WebClient createWebClient(WebClient.Builder webClientBuilder, HttpClient httpClient,
       BaseClientProperties clientProperties) {
-    return webClientBuilder.defaultHeaders(httpHeaders -> {
+    return webClientBuilder.defaultHeaders((HttpHeaders httpHeaders) -> {
           httpHeaders.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
           if (!CollectionUtils.isEmpty(clientProperties.getFixedHeaders())) {
             clientProperties.getFixedHeaders().forEach(httpHeaders::add);
@@ -90,7 +98,48 @@ public final class WebClientConfigUtil {
         .build();
   }
 
-  public static SslContext buildSslContext() throws SSLException {
+  private static SslContext buildSslContext(BaseClientProperties clientProperties) throws SSLException {
+    if (clientProperties.getCertificates() != null) {
+      return buildMtlsSslContext(clientProperties);
+    }
+    return buildGenericSslContext();
+  }
+
+  private static SslContext buildMtlsSslContext(BaseClientProperties clientProperties) {
+    try {
+      var keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      var keyCert = Base64.getDecoder().decode(
+          clientProperties.getCertificates().getKeyStore().getBase64Jks());
+      var keyStorePassword = clientProperties.getCertificates().getKeyStore().getPassword();
+      var keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+
+      keyStore.load(new ByteArrayInputStream(keyCert),
+          keyStorePassword == null ? null : keyStorePassword.toCharArray());
+      keyManagerFactory.init(keyStore,
+          clientProperties.getCertificates().getKeyStore().getPkPassword().toCharArray());
+
+      if (clientProperties.getCertificates().getTrustStore() == null) {
+        return SslContextBuilder.forClient().keyManager(keyManagerFactory).build();
+      }
+
+      var trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      var trustCert = Base64.getDecoder().decode(
+          clientProperties.getCertificates().getTrustStore().getBase64Jks());
+      var trustStorePassword = clientProperties.getCertificates().getTrustStore().getPassword();
+      var trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
+      trustStore.load(
+          new ByteArrayInputStream(trustCert),
+          trustStorePassword == null ? null : trustStorePassword.toCharArray());
+      trustManagerFactory.init(trustStore);
+      return SslContextBuilder.forClient().keyManager(keyManagerFactory)
+          .trustManager(trustManagerFactory).build();
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "Error creating 2-Way TLS WebClient. Check key-store and trust-store.", e);
+    }
+  }
+
+  private static SslContext buildGenericSslContext() throws SSLException {
     return SslContextBuilder.forClient()
         .trustManager(InsecureTrustManagerFactory.INSTANCE)
         .build();

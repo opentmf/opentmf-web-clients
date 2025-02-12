@@ -1,6 +1,8 @@
 package com.pia.client.common.model;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -93,5 +95,79 @@ public abstract class BaseClientProperties {
      * List of non-proxy hosts.
      */
     private List<String> nonProxyHosts;
+  }
+
+  /**
+   * The keyStore and optionally the trustStore definitions. These will usually be read from
+   * secrets.
+   */
+  private Certificates certificates;
+
+  @Validated
+  @Getter
+  @Setter
+  public static class Certificates {
+
+    /**
+    * The keyStore, that holds the private key and the received client certificate(s).
+    */
+    @NotNull
+    KeyStore keyStore;
+
+    /**
+     * The keyStore, that holds the server certificates. If trustStore is not specified, Java VM's
+     * cacerts file will be used by default.
+     */
+    TrustStore trustStore;
+
+    @Validated
+    @Getter
+    @Setter
+    public static class KeyStore {
+
+      /**
+       * The keyStore password.
+       */
+      String password;
+
+      /**
+       * The privateKey password that resides within this keyStore. This one is required. We do not support
+       * key stores without a private key password.
+       */
+      @NotBlank
+      String pkPassword;
+
+      /**
+       * The keyStore binary file contents in the form of a base-64 encoded string.
+       */
+      @NotBlank
+      String base64Jks;
+    }
+
+    @Validated
+    @Getter
+    @Setter
+    public static class TrustStore {
+
+      /**
+       * The keyStore password.
+       */
+      String password;
+
+      /**
+       * The keyStore binary file contents in the form of a base-64 encoded string.
+       */
+      @NotBlank
+      String base64Jks;
+    }
+
+  }
+
+  @PostConstruct
+  private void postConstruct() {
+    if (certificates != null && proxyConfig != null) {
+      throw new IllegalArgumentException(
+          "Proxy is not supported for mutual TLS connection.");
+    }
   }
 }

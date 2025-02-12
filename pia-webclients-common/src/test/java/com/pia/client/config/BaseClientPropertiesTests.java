@@ -2,9 +2,15 @@ package com.pia.client.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.pia.client.common.model.BaseClientProperties;
+import com.pia.client.common.model.BaseClientProperties.Certificates;
+import com.pia.client.common.model.BaseClientProperties.ProxyConfig;
 import com.pia.client.config.test.ClientProperties;
 import com.pia.client.config.test.TokenProperties;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +34,17 @@ class BaseClientPropertiesTests {
     assertEquals(REQUEST_TIME_MILLIS, clientProperties.getRequestTimeoutMillis());
     assertEquals(REQUEST_TIME_MILLIS, clientProperties.getResponseTimeoutMillis());
     assertEquals(RETRY_WAIT_MILLIS, clientProperties.getRetryWaitMillis());
+  }
+
+  @Test
+  void testConfigurationMtlsAndProxy_throwsException()
+      throws NoSuchMethodException, SecurityException {
+    var clientProperties = buildClientProperties();
+    clientProperties.setCertificates(new Certificates());
+    clientProperties.setProxyConfig(new ProxyConfig());
+    Method postConstruct =  BaseClientProperties.class.getDeclaredMethod("postConstruct");
+    postConstruct.setAccessible(true);
+    assertThrows(InvocationTargetException.class, () -> postConstruct.invoke(clientProperties));
   }
 
   private ClientProperties buildClientProperties() {

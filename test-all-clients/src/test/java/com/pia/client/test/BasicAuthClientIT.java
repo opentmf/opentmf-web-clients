@@ -32,7 +32,6 @@ class BasicAuthClientIT {
   @Test
   void testBasicAuth_withCorrectConfiguration_exposesBeans() {
     Assertions.assertNotNull(openidClients);
-
     Assertions.assertNotNull(firstBasicClientProperties);
     Assertions.assertNotNull(firstBasicWebClient);
     Assertions.assertNotNull(firstBasicTokenService);

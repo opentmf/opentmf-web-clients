@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.transport.ProxyProvider;
 
 /**
- * OpenIdClientAutoConfiguration is responsible for configuring and creating the necessary beans for
+ * ClientAutoConfiguration is responsible for configuring and creating the necessary beans for
  * the OpenId client. It configures the WebClient and creates a TokenService instance for accessing
  * OpenId token functionalities. It also handles SSL configuration, proxy settings, timeouts, and
  * other HTTP client settings.
@@ -32,11 +32,11 @@ import reactor.netty.transport.ProxyProvider;
 @Slf4j
 @AutoConfiguration
 @AutoConfigureAfter(LogbookAutoConfiguration.class)
-public class OpenIdClientAutoConfiguration {
+public class ClientAutoConfiguration {
 
   private final ClientProperties clientProperties;
 
-  public OpenIdClientAutoConfiguration(ClientProperties clientProperties) {
+  public ClientAutoConfiguration(ClientProperties clientProperties) {
     this.clientProperties = clientProperties;
   }
 
@@ -49,22 +49,23 @@ public class OpenIdClientAutoConfiguration {
    * @throws SSLException If there's an issue with SSL configuration.
    */
   @Bean
-  public WebClient openIdWebClient(WebClient.Builder webClientBuilder, Logbook logbook)
+  public WebClient baseWebClient(WebClient.Builder webClientBuilder, Logbook logbook)
       throws SSLException {
-    return buildOpenIdWebClient(webClientBuilder, logbook);
+    return buildWebClient(webClientBuilder, logbook);
   }
 
   /**
    * Creates the TokenService using the configured WebClient.
    *
-   * @param openIdWebClient Configured WebClient instance.
+   * @param baseWebClient Configured WebClient instance.
    * @return TokenService instance for accessing OpenIdToken functionalities.
    */
   @Bean
-  public TokenService openIdTokenService(@Qualifier("openIdWebClient") WebClient openIdWebClient) {
-    Assert.notNull(openIdWebClient, "openIdWebClient must not be null");
+  public TokenService baseTokenService(@Qualifier("baseWebClient") WebClient baseWebClient) {
+    Assert.notNull(baseWebClient, "baseWebClient must not be null");
     return tokenServiceMock();
   }
+
 
   private TokenService tokenServiceMock() {
     return new TokenService() {
@@ -94,7 +95,7 @@ public class OpenIdClientAutoConfiguration {
    * @return Configured WebClient instance.
    * @throws SSLException If there's an issue with SSL configuration.
    */
-  private WebClient buildOpenIdWebClient(WebClient.Builder webClientBuilder, Logbook logbook)
+  private WebClient buildWebClient(WebClient.Builder webClientBuilder, Logbook logbook)
       throws SSLException {
     var httpClient = httpClient(logbook, clientProperties);
     if (Objects.nonNull(clientProperties.getProxyConfig())) {
