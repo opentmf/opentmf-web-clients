@@ -31,7 +31,7 @@
     <okhttp-mockwebserver.version>4.12.0</okhttp-mockwebserver.version>
     <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <archunit-junit5.version>1.3.0</archunit-junit5.version>
+    <archunit-junit5.version>1.4.0</archunit-junit5.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     <sonar-plugin.version>5.0.0.4389</sonar-plugin.version>
     <sonar.java.source>${java.version}</sonar.java.source>
