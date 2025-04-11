@@ -1,4 +1,4 @@
-pia.webclient:
+opentmf.webclient:
   basic:
     firstBasic:
       connection-provider-name: firstBasic

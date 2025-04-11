@@ -1,0 +1,27 @@
+client:
+  connection-provider-name: junit-provider
+  max-connections: 500
+  request-timeout-millis: 30_000
+  response-timeout-millis: 50_000
+  num-retries: 3
+  retry-wait-millis: 100
+  fixed-headers:
+    x-country-code: UK
+    x-route-info: GSIP
+    x-source-system: SolutionsHub
+  token-config:
+    use-mock: false
+    token-url: http://localhost:1080/auth/token
+    form-data:
+      grant-type: client_credentials
+      scope: myScope
+      username: myusername
+  paths:
+    path1:
+      path: /path
+      scope: scope
+  proxy-config:
+    proxy-host: localhost
+    proxy-port: 3128
+    non-proxy-hosts:
+      - mockserver-svc

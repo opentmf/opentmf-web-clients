@@ -1,8 +1,9 @@
-# pia-web-clients Mutual MTLS Support
-To enable Mutual TLS handshake for pia web clients, you need to provide the java key store ( Jks) and truststore in the configuration. It can be used for both basic or openId type clients. 
-Due to nature of the TLS handshake, the client can not both use proxy and Mutual TLS handshake at the same time. Thus, the web-clients will complain at startup if you provide both proxy and mutual SSL certificate settings.
+# opentmf-web-clients Mutual TLS Support
+To enable Mutual TLS handshake for opentmf web clients, you need to provide the java key store (Jks) and truststore in the configuration. It can be used for both basic or openId type clients. 
 
-Steps to generate and provide a Jks with a signed certificate for pia web clients:
+> **Note:** Due to nature of the TLS handshake, the client can not both use proxy and Mutual TLS handshake at the same time. Thus, the web-clients will complain at startup if you provide both proxy and mutual SSL certificate settings.
+
+Steps to generate and provide a Jks with a signed certificate for opentmf web clients:
 1. Clarify parameters for the certificate
 2. Create a keystore
 3. Create a CSR
@@ -11,7 +12,7 @@ Steps to generate and provide a Jks with a signed certificate for pia web client
 6. Configure the client to use the keystore
 7. Test the connection
 
-Steps to provide truststore for pia web clients:
+Steps to provide truststore for opentmf web clients:
 1. Obtain Server certificate
 2. Export it into a jks file
 3. Configure the client to use the truststore
@@ -19,33 +20,34 @@ Steps to provide truststore for pia web clients:
 
 ### Clarify parameters for the certificate:
 Please clarify the following parameters:
- CN = Common Name
- OU = Organizationl Unit
- O = Organization
- L = Location
- ST =
- C = Country
+- CN = Common Name
+- OU = Organizational Unit
+- O = Organization
+- L = Locality
+- S = State or Province Name
+- C = Country Name
 
 Especially the Common Name is important as it will be used to identify the client.
 
 ### Create Keystore
 
 ```bash
+# create the keystore
 keytool -genkey -alias client -keyalg RSA -keysize 4096 -validity 730 \
 -keypass mypassword \
 -storetype pkcs12 \
--keystore pia-mtls-keystore-for-prod-env.jks \
+-keystore my_keystore.jks \
 -storepass mypassword \
--dname "CN=prod-dsync-pia-com, OU=PPE, O=Pia, L=Istanbul, ST=Istanbul, C=TR, EMAILADDRESS="
+-dname "CN=mycompany.com, OU=IT, O=MyOrg, L=MyLocation, S=MyState, C=Dreamland, EMAILADDRESS="
 ```
 
-
-### Create CSR ( Certficiate Signing Request)
+### Create CSR ( Certificate Signing Request)
 
 ```bash
+# generate a CSR
 keytool -certreq -v -alias client \
--file pia-mtls-keystore-for-prod-env.csr \
--keystore pia-mtls-keystore-for-prod-env.jks \
+-file my_keystore.csr \
+-keystore my_keystore.jks \
 -storepass mypassword
 ```
 
@@ -56,14 +58,15 @@ The CSR should be sent to the Certificate Authority to be signed. The CA will re
 Once we receive signed certificate we need to import it as a trusted certificate into the JKS. 
 
 ```bash
+# import the obtained certificate
 keytool -import -trustcacerts -alias client \
--file cert_prod-dsync-pia-com.p7b.pem \
--keystore pia-mtls-keystore-for-prod-env.jks \
+-file cert.p7b.pem \
+-keystore my_keystore.jks \
 -storepass mypassword
 ```
 
 ### Provide the Jks in base64 encoded format:
-The keystore now should be encoded in base64 format. This is due to Kubernetes not supporting binary data in the configuration files. Pia-web-clients need this JKS file in Base64 format. It will decode it back to binary format when it loads it.
+The keystore now should be encoded in base64 format. This is due to Kubernetes not supporting binary data in the configuration files. OpenTMF-web-clients need this JKS file in Base64 format. It will decode it back to binary format when it loads it.
 
 ```bash
 base64 -w0 cert.jks > cert.jks.base64
@@ -85,7 +88,7 @@ Please provide it in the configuration file as follows into the  key-store.base6
 
 For openid clients:
 ```yaml
-pia.webclient:
+opentmf.webclient:
   openid:
     fullOpenId:
       certificates:
@@ -101,7 +104,7 @@ pia.webclient:
 and for basic clients:
 
 ```yaml
-pia.webclient:
+opentmf.webclient:
   basic:
     fullBasic:
       certificates:

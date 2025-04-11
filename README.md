@@ -1,4 +1,4 @@
-# pia-web-clients
+# opentmf-web-clients
 General purpose WebClient libraries that includes Logbook, configurable connection properties, fixed headers support, and token retrieval with implicit access token caching.
 
 Currently, two providers have been provided:
@@ -8,14 +8,14 @@ Currently, two providers have been provided:
 
 ## Usage
 
-### Import pia-commons dependency versions
-This will manage the dependencies of the pia-commons libraries
+### Import opentmf-commons dependency versions
+This will manage the dependencies of the opentmf-commons libraries
 to use their latest compatible version.
 ```xml
 <dependencyManagement>
   <dependency>
-    <groupId>com.pia.commons</groupId>
-    <artifactId>pia-commons-versions</artifactId>
+    <groupId>org.opentmf</groupId>
+    <artifactId>opentmf-versions</artifactId>
     <version>RELEASE</version>
     <type>pom</type>
     <scope>import</scope>
@@ -27,7 +27,7 @@ to use their latest compatible version.
 
 #### Sample Configuration (Minimal)
 ```yaml
-pia.webclient:
+opentmf.webclient:
   openid:
     simpleOpenId:
       connection-provider-name: simpleOpenId
@@ -43,7 +43,7 @@ pia.webclient:
 
 #### Sample Configuration (Full)
 ```yaml
-pia.webclient:
+opentmf.webclient:
   openid:
     fullOpenId:
       connection-provider-name: fullOpenId
@@ -95,8 +95,8 @@ We will need to expose ClientProperties, WebClient and TokenService beans oursel
 ##### Maven Dependency
 ```xml
 <dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-openid-webclient-provider</artifactId>
+  <groupId>org.opentmf.client</groupId>
+  <artifactId>opentmf-openid-webclient-provider</artifactId>
 </dependency>
 ```
 ##### Configure Beans
@@ -142,13 +142,13 @@ public class SampleClientImpl() {
 }
 ```
 #### Second (and Easy) Method: Dynamic Configuration
-Starting with pia-web-clients version 1.0.5, applications can now directly use the client beans through pia-openid-webclients-starter autoconfiguration library which takes care of traversing the openid client configurations and exposing necessary beans automatically.
+Applications can also directly use the client beans through opentmf-openid-webclients-starter autoconfiguration library which takes care of traversing the openid client configurations and exposing necessary beans automatically.
 
 ##### Maven Dependency
 ```xml
 <dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-openid-webclients-starter</artifactId>
+  <groupId>org.opentmf.client</groupId>
+  <artifactId>opentmf-openid-webclients-starter</artifactId>
 </dependency>
 ```
 That's it. Now you can autowire them at any point in your application:
@@ -170,7 +170,7 @@ public class SampleClientImpl() {
 
 #### Sample Configuration (Minimal)
 ```yaml
-pia.webclient:
+opentmf.webclient:
   basic:
     simpleBasic:
       connection-provider-name: simpleBasic
@@ -181,7 +181,7 @@ pia.webclient:
 
 #### Sample Configuration (Full)
 ```yaml
-pia.webclient:
+opentmf.webclient:
   basic:
     fullBasic:
       connection-provider-name: fullBasic
@@ -218,8 +218,8 @@ We will need to expose ClientProperties, WebClient and TokenService beans oursel
 ##### Maven Dependency
 ```xml
 <dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-basic-webclient-provider</artifactId>
+  <groupId>org.opentmf.client</groupId>
+  <artifactId>opentmf-basic-webclient-provider</artifactId>
 </dependency>
 ```
 
@@ -258,6 +258,7 @@ And then you can use those beans via autowiring within your application.
 ```java
 import lombok.RequiredArgsConstructor;
 
+@Component  // or @Service, etc.
 @RequiredArgsConstructor
 public class SampleClientImpl() {
 
@@ -268,19 +269,20 @@ public class SampleClientImpl() {
 }
 ```
 #### Second (and Easy) Method: Dynamic Configuration
-Starting with pia-web-clients version 1.0.5, applications can now directly use the client beans through pia-basic-webclients-starter autoconfiguration library which takes care of traversing the basic auth client configurations and exposing necessary beans automatically.
+Applications can directly use the client beans through opentmf-basic-webclients-starter autoconfiguration library which takes care of traversing the basic auth client configurations and exposing necessary beans automatically.
 
 ##### Maven Dependency
 ```xml
 <dependency>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-basic-webclients-starter</artifactId>
+  <groupId>org.opentmf.client</groupId>
+  <artifactId>opentmf-basic-webclients-starter</artifactId>
 </dependency>
 ```
 That's it. Now you can autowire them at any point in your application:
 ```java
 import lombok.RequiredArgsConstructor;
 
+@Component  // or @Service, etc.
 @DependsOn("basicWebClientsStarter")
 @RequiredArgsConstructor
 public class SampleClientImpl() {
@@ -295,8 +297,8 @@ public class SampleClientImpl() {
 
 
 ### Mutual TLS support:
-It supports Mutual TLS given you provide at least keyStore in certificate parameters. It will complain if both mTls and proxy configurations are provided. Truststore certificate is optional. Passwords for certificates are optional.
-For more information on configuring for Mutual TLS support please check [MTLS Readme](./README_MTLS.md)
+Both openid abd basic webclient libraries support Mutual TLS authentication through simple configuration. At least keyStore should be provided in certificate parameters. It will complain if both mTls and proxy configurations are provided. Truststore certificate is optional. Passwords for certificates are optional.
+For more information on configuring for Mutual TLS support please check [Mutual TLS Configuration](./README_MTLS.md).
 
 ## Version History
 ### 1.0.0
@@ -322,3 +324,5 @@ For more information on configuring for Mutual TLS support please check [MTLS Re
 - Stopped depending on spring-boot-starter-webflux, to support synchronous spring-web applications (i.e. web-application-type = servlet) with fewer dependencies and getting rid of potential auto configurations of webflux. That way we restrict the dependencies to provide a reactive WebClient, but not the whole reactive webflux server layer.
 ### 1.0.9
 - Supports Mutual TLS protocol.
+### 1.1.0
+- First open-source version, replacing pia with opentmf 

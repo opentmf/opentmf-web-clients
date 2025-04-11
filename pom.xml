@@ -1,42 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.pia.commons</groupId>
-  <artifactId>pia-web-clients</artifactId>
-  <version>1.0.10-SNAPSHOT</version>
-  <packaging>pom</packaging>
+  <groupId>org.opentmf.client</groupId>
+  <artifactId>opentmf-web-clients</artifactId>
+  <version>1.1.0-SNAPSHOT</version>
 
+  <packaging>pom</packaging>
   <modules>
-    <module>pia-webclients-common</module>
-    <module>pia-basic-webclient-provider</module>
-    <module>pia-basic-webclients-starter</module>
-    <module>pia-openid-webclient-provider</module>
-    <module>pia-openid-webclients-starter</module>
+    <module>opentmf-webclients-common</module>
+    <module>opentmf-basic-webclient-provider</module>
+    <module>opentmf-basic-webclients-starter</module>
+    <module>opentmf-openid-webclient-provider</module>
+    <module>opentmf-openid-webclients-starter</module>
     <module>test-all-clients</module>
   </modules>
 
+  <url>https://github.com/opentmf/opentmf-web-clients</url>
+
+  <organization>
+    <name>PiA Group</name>
+    <url>https://www.pia-group.net/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+      <comments>A permissive open-source license</comments>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>gokhanus</id>
+      <name>Gokhan Demir</name>
+      <email>gokhan@opentmf.org</email>
+    </developer>
+    <developer>
+      <id>yusuf-bozkurt</id>
+      <name>Yusuf Bozkurt</name>
+      <email>yusuf.bozkurt@pia-team.com</email>
+    </developer>
+    <developer>
+      <id>cezmi-aslan</id>
+      <name>Cezmi Aslan</name>
+      <email>cezmi.aslan@pia-team.com</email>
+    </developer>
+    <developer>
+      <id>abdullahbeker</id>
+      <name>Abdullah Beker</name>
+      <email>abdullah.beker@dnext-technology.com</email>
+    </developer>
+    <developer>
+      <id>sezer</id>
+      <name>Sezer Aydin</name>
+      <email>sezer.aydin@pia-team.com</email>
+    </developer>
+  </developers>
+
   <properties>
     <java.version>17</java.version>
-    <pia-commons.version>1.0.0</pia-commons.version>
-    <logbook.version>3.9.0</logbook.version>
-    <maven-deploy-plugin.version>3.1.3</maven-deploy-plugin.version>
-    <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
-    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+
+    <spring-boot.version>3.4.4</spring-boot.version>
+    <opentmf-commons.version>1.0.5</opentmf-commons.version>
+    <logbook.version>3.9.0</logbook.version>
+
     <netty-mockserver.version>5.15.0</netty-mockserver.version>
     <okhttp-mockwebserver.version>4.12.0</okhttp-mockwebserver.version>
-    <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <archunit-junit5.version>1.4.0</archunit-junit5.version>
-    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-    <sonar-plugin.version>5.0.0.4389</sonar-plugin.version>
+
+    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+    <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+    <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
+
+    <sonar-plugin.version>5.1.0.4751</sonar-plugin.version>
     <sonar.java.source>${java.version}</sonar.java.source>
     <sonar.java.target>${java.version}</sonar.java.target>
-    <spring-boot.version>3.4.2</spring-boot.version>
   </properties>
 
   <dependencyManagement>
@@ -137,11 +187,6 @@
           <version>${maven-enforcer-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
@@ -163,8 +208,23 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven-release-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>${maven-deploy-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>${sonar-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -192,13 +252,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <configuration>
-          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-        </configuration>
         <executions>
           <execution>
             <goals>
@@ -207,67 +267,71 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
+        <version>${maven-source-plugin.version}</version>
         <executions>
           <execution>
+            <id>attach-sources</id>
             <goals>
               <goal>jar-no-fork</goal>
             </goals>
-            <id>attach-sources</id>
-            <phase>deploy</phase>
           </execution>
         </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
         <executions>
           <execution>
-            <configuration>
-              <failOnError>false</failOnError>
-              <failOnWarnings>false</failOnWarnings>
-            </configuration>
+            <id>attach-javadocs</id>
             <goals>
               <goal>jar</goal>
             </goals>
-            <id>attach-javadocs</id>
-            <phase>deploy</phase>
+            <configuration>
+              <failOnWarnings>false</failOnWarnings>
+              <failOnError>false</failOnError>
+            </configuration>
           </execution>
         </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>${nexus-staging-plugin.version}</version>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>${maven-gpg-plugin.version}</version>
         <executions>
           <execution>
-            <id>default-deploy</id>
-            <phase>deploy</phase>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
             <goals>
-              <goal>deploy</goal>
+              <goal>sign</goal>
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
         <configuration>
-          <serverId>pia-commons-release</serverId>
-          <nexusUrl>https://nexus.dnext-pia.com/</nexusUrl>
-          <skipStaging>true</skipStaging>
+          <useReleaseProfile>false</useReleaseProfile>
+          <goals>deploy</goals>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.sonarsource.scanner.maven</groupId>
-        <artifactId>sonar-maven-plugin</artifactId>
-        <version>${sonar-plugin.version}</version>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>${central-publishing-maven-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>publish-to-central</publishingServerId>
+          <autoPublish>true</autoPublish>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -326,21 +390,10 @@
     </plugins>
   </build>
 
-  <distributionManagement>
-    <repository>
-      <id>pia-commons-release</id>
-      <url>https://nexus.dnext-pia.com/repository/pia-commons-release/</url>
-    </repository>
-    <snapshotRepository>
-      <id>pia-commons-snapshot</id>
-      <url>https://nexus.dnext-pia.com/repository/pia-commons-snapshot/</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <scm>
-    <connection>scm:git:git@github.com:pia-commons/pia-web-clients.git</connection>
-    <developerConnection>scm:git:git@github.com:pia-commons/pia-web-clients.git
-    </developerConnection>
+    <url>https://github.com/opentmf/opentmf-web-clients</url>
+    <connection>scm:git:git@github.com:opentmf/opentmf-web-clients.git</connection>
+    <developerConnection>scm:git:git@github.com:opentmf/opentmf-web-clients.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
