@@ -10,6 +10,10 @@
 
   <artifactId>opentmf-basic-webclient-provider</artifactId>
 
+  <description>
+    Generic WebClient provider that uses basic authentication.
+  </description>
+
   <dependencies>
     <dependency>
       <artifactId>opentmf-webclients-common</artifactId>

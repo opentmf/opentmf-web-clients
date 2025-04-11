@@ -10,6 +10,10 @@
 
   <artifactId>opentmf-webclients-common</artifactId>
 
+  <description>
+    A test client that makes use of each and every provided OpenTMF WebClient.
+  </description>
+
   <dependencies>
     <dependency>
       <groupId>org.opentmf.commons</groupId>

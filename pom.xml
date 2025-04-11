@@ -15,6 +15,10 @@
     <module>test-all-clients</module>
   </modules>
 
+  <description>
+    General purpose WebClient libraries with cached getToken support.
+  </description>
+
   <url>https://github.com/opentmf/opentmf-web-clients</url>
 
   <organization>

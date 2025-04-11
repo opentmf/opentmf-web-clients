@@ -9,6 +9,10 @@
 
   <artifactId>opentmf-openid-webclients-starter</artifactId>
 
+  <description>
+    OpenID auth WebClient starter automatically exposes configured WebClient beans.
+  </description>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>

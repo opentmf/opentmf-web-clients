@@ -326,3 +326,5 @@ For more information on configuring for Mutual TLS support please check [Mutual 
 - Supports Mutual TLS protocol.
 ### 1.1.0
 - First open-source version, replacing pia with opentmf 
+### 1.1.1
+- Adds missing descriptions into pom.xml files. 

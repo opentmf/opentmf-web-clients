@@ -10,6 +10,10 @@
 
   <artifactId>opentmf-openid-webclient-provider</artifactId>
 
+  <description>
+    Generic WebClient provider that uses OpenID authentication.
+  </description>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
